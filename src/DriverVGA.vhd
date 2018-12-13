@@ -36,7 +36,7 @@ entity DriverVGA is
            HS : out  STD_LOGIC;
            VS : out  STD_LOGIC;
 			  refresh : out STD_LOGIC;
-			  ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0 );
+			  ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0);
            RGBout : out  STD_LOGIC_VECTOR(7 downto 0));
 end DriverVGA;
 
@@ -74,7 +74,7 @@ begin
 
 ejex <= Qx;
 ejey <= Qy;
-refresh <= resets1O;
+refresh <= resets2O;
 
 enable2 <= resets1O AND clk_pixel;
 -- Bloque frec_pixel, directamente disenado en el nivel de jerarquia superior

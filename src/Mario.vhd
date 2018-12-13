@@ -61,8 +61,8 @@ begin
 sinc: process(clk,reset)
 begin
 	if(reset = '1') then
-		posx <= to_unsigned(150,10);
-		posy <= to_unsigned(10,10);
+		posx <= to_unsigned(50,10);
+		posy <= to_unsigned(50,10); -- En 85-32 toca plataforma
 		vely <= (others => '0');
 		flag <= '0';
 		
