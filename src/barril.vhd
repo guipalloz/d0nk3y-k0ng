@@ -30,11 +30,14 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity barril is
-    Port ( ejex : in  STD_LOGIC;
+    Port ( clk : in STD_LOGIC;
+			  reset : in STD_LOGIC;
+			  ejex : in  STD_LOGIC;
            ejey : in  STD_LOGIC;
            sobrePlat_barril : in  STD_LOGIC;
            aparece : in  STD_LOGIC;
-           RGBb : out  STD_LOGIC_VECTOR(7 downto 0);
+			  refresh : in STD_LOGIC;
+           RGBb : out  STD_LOGIC_VECTOR(7 downto 0));
 end barril;
 
 architecture Behavioral of barril is
@@ -71,13 +74,13 @@ end process;
 repr: process(ejex,ejey, posx, posy)
 	begin
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 16)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 16)) then
-		RGBm<="10101100"; --Pinta de marron
+		RGBb<="10101100"; --Pinta de marron
 	else
-		RGBm<="00000000"; --Pinta de negro
+		RGBb<="00000000"; --Pinta de negro
 	end if;
 	
 	if((unsigned(ejex) = posx + 8) AND (unsigned(ejey) = (posy + 15))) then
-		RGBm<="10101101"; --Pintamos un único punto de señal en el medio del cuadrado
+		RGBb<="10101101"; --Pintamos un único punto de señal en el medio del cuadrado
 	end if;
 end process;
 
