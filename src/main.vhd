@@ -103,7 +103,6 @@ MiMario: Mario
 				 down => down,
 				 jump => jump,
 				 sobrePlat => s_sobrePlat);
-
 VGA: DriverVGA
     Port MAP( clk => clk,
            reset => reset,
