@@ -33,46 +33,56 @@ entity control is
     Port ( clk : in  STD_LOGIC;
            reset : in  STD_LOGIC;
            RGBm : in  STD_LOGIC_VECTOR(7 downto 0);
+           RGBb : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBs : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBin : out  STD_LOGIC_VECTOR(7 downto 0);
-			  sobrePlat : out  STD_LOGIC);
+			  sobrePlat_mario : out  STD_LOGIC;
+			  sobrePlat_barril : out  STD_LOGIC);
 end control;
 
 architecture Behavioral of control is
-signal sobrePlataforma, p_sobrePlataforma: std_logic;
+signal sobrePlataforma_mario, p_sobrePlataforma_mario: std_logic;
+signal sobrePlataforma_barril, p_sobrePlataforma_barril: std_logic;
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011"; 
-constant color_aviso: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; --Amarillo
+constant color_aviso_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; 
+constant color_aviso_barril: STD_LOGIC_VECTOR(7 downto 0):= "10101101"; 
 
 
 begin
-sobrePlat<=sobrePlataforma;
+sobrePlat_mario<=sobrePlataforma_mario;
+sobrePlat_barril<=sobrePlataforma_barril;
 
-comb: process(RGBm, RGBs,sobrePlataforma)
+comb: process(RGBm, RGBs,sobrePlataforma_mario)
 begin
-	if (RGBm=color_aviso and RGBs=color_plataforma)then
-		p_sobrePlataforma<='1';
-	elsif(RGBm=color_aviso and RGBs="00000000")then
-		p_sobrePlataforma<='0';
+	if (RGBm=color_aviso_mario and RGBs=color_plataforma)then
+		p_sobrePlataforma_mario<='1';
+	elsif(RGBm=color_aviso_mario and RGBs="00000000")then
+		p_sobrePlataforma_mario<='0';
 	else
-		p_sobrePlataforma <= sobrePlataforma;
+		p_sobrePlataforma_mario <= sobrePlataforma_mario;
 	end if;
 	
-	RGBin <= RGBs OR RGBm;
---	
---	if goingUp = '1' then
---		if (RGBm = color_mario AND RGBs = color_plataforma) then
---			goingUp <= '0';
---		end if;
---	end if;
-		
+	--RGBin <= RGBs OR RGBm;
+
+	if (RGBb=color_aviso_barril and RGBs=color_plataforma)then
+		p_sobrePlataforma_barril<='1';
+	elsif(RGBb=color_aviso_barril and RGBs="00000000")then
+		p_sobrePlataforma_barril<='0';
+	else
+		p_sobrePlataforma_barril <= sobrePlataforma_barril;
+	end if;
+	
+	RGBin <= RGBs OR RGBm OR RGBb;		
 end process;
 
 sinc: process(clk,reset)
 begin
 	if(reset = '1') then
-		sobrePlataforma <= '0';
+		sobrePlataforma_mario <= '0';
+		sobrePlataforma_barril <= '0';
 	elsif (rising_edge(clk)) then
-		sobrePlataforma <= p_sobrePlataforma;
+		sobrePlataforma_mario <= p_sobrePlataforma_mario;
+		sobrePlataforma_barril <= p_sobrePlataforma_barril;
 	end if;
 end process;
 
