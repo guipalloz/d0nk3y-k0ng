@@ -49,7 +49,6 @@ signal p_posx, p_posy, posx, posy : unsigned(9 downto 0);
 constant VELX : unsigned(4 downto 0):= to_unsigned(1,5);
 constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 signal vely,p_vely: unsigned(4 downto 0);
-signal flag : STD_LOGIC;
 
 type estado is (WAITING, POS_UPDATE, VEL_UPDATE);
 signal state, p_state:estado;
@@ -61,11 +60,9 @@ begin
 sinc: process(clk,reset)
 begin
 	if(reset = '1') then
-		posx <= to_unsigned(50,10);
-		posy <= to_unsigned(50,10); -- En 85-32 toca plataforma
+		posx <= to_unsigned(200,10);
+		posy <= to_unsigned(0,10); -- En 85-32 toca plataforma
 		vely <= (others => '0');
-		flag <= '0';
-		
 		state <= WAITING;
 		
 	elsif(rising_edge(clk)) then
@@ -78,21 +75,18 @@ end process;
 
 repr: process(ejex,ejey, posx, posy)
 	begin
-	flag <= '0';
 	--posx+15=unsigned(ejex) AND
-	if( posy+31=unsigned(ejey))then
-		RGBm<="11111100"; --Pinta el punto de amarillo !!!!!!!!!!!!!!!!!!!
-		flag <= '1';
-	elsif(posx>=unsigned(ejex) AND posx<unsigned(ejex)+32 AND posy>=unsigned(ejey) AND posy < unsigned(ejey)+32) then
+	if(posx>=unsigned(ejex) AND posx<unsigned(ejex)+32 AND posy>=unsigned(ejey) AND posy < unsigned(ejey)+31) then
 		RGBm<="11100000"; --Pinta de rojo
+	elsif(posx>=unsigned(ejex) AND posx<unsigned(ejex)+32 AND posy = unsigned(ejey) +32)then
+		RGBm<="11111100"; --Pinta el punto de amarillo !!!!!!!!!!!!!!!!!!!
 	else
 		RGBm<="00000000"; --Pinta de negro
 	end if;
-
 end process;
 
 
-maquina_estado: process(refresh,posx, posy, vely, sobrePlat, state, left, right)
+maquina_estado: process(refresh,posx, posy, vely, state, left, right)
 begin
 	p_state<=state;
 	p_posx<=posx;
@@ -111,22 +105,22 @@ begin
 		when POS_UPDATE =>
 		-- ¿Habria que restarle 1 en caso de sobreplataform = 1??
 			p_state<=VEL_UPDATE;
-			if (left='1' and posx>VELX) then
+			if (left='1' and posx>VELX) then -- Restricción de no salirme de la pantalla
 				p_posx<=posx-VELX;
-			elsif (right='1' and posx + 32 < to_unsigned(639,10)) then
+			elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricción en el otro lado de la pantalla
 				p_posx<=posx+VELX;
 			else
 				p_posx<=posx;
 			end if;
 			if(sobrePlat ='0') then
-				p_posy <= posy + VELY;
+				p_posy <= posy + vely;
 			else
-				p_posy <= posy-1; -- ¿-1?
+				p_posy <= posy-1; -- Me salgo de la plataforma
 			end if;
 -- IDEA: Poner el punto amarillo un pixel debajo del recuadro para evitar que fluctue en torno a la plataforma
 		when VEL_UPDATE =>
+			p_state <= WAITING;
 			if sobrePlat = '0' then
-				
 				if (vely<MAX_VELY) then
 					p_vely<=vely+ACEL;
 				else
@@ -135,9 +129,7 @@ begin
 			else 
 				p_vely <= (others => '0');
 			end if;
-			p_state <= WAITING;
 	end case;
 end process;
-
 end Behavioral;
 
