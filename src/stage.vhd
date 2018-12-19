@@ -43,14 +43,14 @@ repr: process(ejex,ejey)
 -- Pintamos el suelo
 	RGBs<="00000000"; --Pinta suelo
 	if(unsigned(ejey) > to_unsigned(430,10)) then
-		RGBs<="11100001"; --Pinta suelo
+		RGBs<="11100010"; --Pinta suelo
 
 	elsif(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) < to_unsigned(340,10) AND unsigned(ejex) < to_unsigned(480,10)) then
-		RGBs<="11100001"; --Pinta 1ª plataforma
+		RGBs<="11100010"; --Pinta 1ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) < to_unsigned(225,10) AND unsigned(ejex) > to_unsigned(160,10)) then
-		RGBs<="11100001"; --Pinta 2ª plataforma
+		RGBs<="11100010"; --Pinta 2ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) < to_unsigned(110,10) AND unsigned(ejex) < to_unsigned(480,10)) then
-		RGBs<="11100001"; --Pinta 3ª plataforma
+		RGBs<="11100010"; --Pinta 3ª plataforma
 	end if;
 end process;
 

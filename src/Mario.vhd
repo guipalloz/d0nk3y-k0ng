@@ -61,7 +61,7 @@ sinc: process(clk,reset)
 begin
 	if(reset = '1') then
 		posx <= to_unsigned(200,10);
-		posy <= to_unsigned(0,10); -- En 85-32 toca plataforma
+		posy <= to_unsigned(10,10);
 		vely <= (others => '0');
 		state <= WAITING;
 		
@@ -76,9 +76,9 @@ end process;
 repr: process(ejex,ejey, posx, posy)
 	begin
 	--posx+15=unsigned(ejex) AND
-	if(posx>=unsigned(ejex) AND posx<unsigned(ejex)+32 AND posy>=unsigned(ejey) AND posy < unsigned(ejey)+31) then
+	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 32)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 32)) then
 		RGBm<="11100000"; --Pinta de rojo
-	elsif(posx>=unsigned(ejex) AND posx<unsigned(ejex)+32 AND posy = unsigned(ejey) +32)then
+	elsif((unsigned(ejex) = posx +16) AND (unsigned(ejey) = (posy + 32))) then
 		RGBm<="11111100"; --Pinta el punto de amarillo !!!!!!!!!!!!!!!!!!!
 	else
 		RGBm<="00000000"; --Pinta de negro
@@ -86,7 +86,7 @@ repr: process(ejex,ejey, posx, posy)
 end process;
 
 
-maquina_estado: process(refresh,posx, posy, vely, state, left, right)
+maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlat)
 begin
 	p_state<=state;
 	p_posx<=posx;
@@ -103,7 +103,6 @@ begin
 			end if;
 			
 		when POS_UPDATE =>
-		-- ¿Habria que restarle 1 en caso de sobreplataform = 1??
 			p_state<=VEL_UPDATE;
 			if (left='1' and posx>VELX) then -- Restricción de no salirme de la pantalla
 				p_posx<=posx-VELX;

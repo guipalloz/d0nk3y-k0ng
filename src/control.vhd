@@ -40,7 +40,7 @@ end control;
 
 architecture Behavioral of control is
 signal sobrePlataforma, p_sobrePlataforma: std_logic;
-constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; 
+constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11100010"; 
 constant color_aviso: STD_LOGIC_VECTOR(7 downto 0):= "11111100"; --Amarillo
 
 begin
@@ -50,7 +50,6 @@ comb: process(RGBm, RGBs,sobrePlataforma)
 begin
 	if (RGBm=color_aviso and RGBs=color_plataforma)then
 		p_sobrePlataforma<='1';
-		
 	elsif(RGBm=color_aviso and RGBs="00000000")then
 		p_sobrePlataforma<='0';
 	else
