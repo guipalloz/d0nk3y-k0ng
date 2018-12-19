@@ -32,8 +32,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity barril is
     Port ( clk : in STD_LOGIC;
 			  reset : in STD_LOGIC;
-			  ejex : in  STD_LOGIC;
-           ejey : in  STD_LOGIC;
+			  ejex : in  STD_LOGIC_VECTOR(9 downto 0);
+           ejey : in  STD_LOGIC_VECTOR(9 downto 0);
            sobrePlat_barril : in  STD_LOGIC;
            aparece : in  STD_LOGIC;
 			  refresh : in STD_LOGIC;

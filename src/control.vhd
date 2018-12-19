@@ -52,7 +52,7 @@ begin
 sobrePlat_mario<=sobrePlataforma_mario;
 sobrePlat_barril<=sobrePlataforma_barril;
 
-comb: process(RGBm, RGBs,sobrePlataforma_mario)
+comb: process(RGBm, RGBb, sobrePlataforma_barril, RGBs,sobrePlataforma_mario)
 begin
 	if (RGBm=color_aviso_mario and RGBs=color_plataforma)then
 		p_sobrePlataforma_mario<='1';
