@@ -33,27 +33,38 @@ entity control is
     Port ( clk : in  STD_LOGIC;
            reset : in  STD_LOGIC;
            RGBm : in  STD_LOGIC_VECTOR(7 downto 0);
-           RGBb : in  STD_LOGIC_VECTOR(7 downto 0);
+           RGBb1 : in  STD_LOGIC_VECTOR(7 downto 0);
+			  RGBb2 : in  STD_LOGIC_VECTOR(7 downto 0);
+			  RGBb3 : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBs : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBin : out  STD_LOGIC_VECTOR(7 downto 0);
-			  sobrePlat_mario : out  STD_LOGIC;
-			  sobrePlat_barril : out  STD_LOGIC);
+			  sobrePlatM : out  STD_LOGIC;
+			  sobrePlatB1 : out  STD_LOGIC;
+			  sobrePlatB2 : out  STD_LOGIC;
+			  sobrePlatB3 : out  STD_LOGIC;
+			  gameover : out STD_LOGIC);
 end control;
 
 architecture Behavioral of control is
 signal sobrePlataforma_mario, p_sobrePlataforma_mario: std_logic;
-signal sobrePlataforma_barril, p_sobrePlataforma_barril: std_logic;
+signal sobrePlataforma_barril1, p_sobrePlataforma_barril1: std_logic;
+signal sobrePlataforma_barril2, p_sobrePlataforma_barril2: std_logic;
+signal sobrePlataforma_barril3, p_sobrePlataforma_barril3: std_logic;
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011"; 
 constant color_aviso_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; 
-constant color_aviso_barril: STD_LOGIC_VECTOR(7 downto 0):= "10101101"; 
+constant color_barril: STD_LOGIC_VECTOR(7 downto 0):= "10001000";
+constant color_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100000";
 
 
 begin
-sobrePlat_mario<=sobrePlataforma_mario;
-sobrePlat_barril<=sobrePlataforma_barril;
+sobrePlatM<=sobrePlataforma_mario;
+sobrePlatB1<=sobrePlataforma_barril1;
+sobrePlatB2<=sobrePlataforma_barril2;
+sobrePlatB3<=sobrePlataforma_barril3;
 
-comb: process(RGBm, RGBb, sobrePlataforma_barril, RGBs,sobrePlataforma_mario)
+comb: process(RGBm, RGBb1, RGBb2, RGBb3, sobrePlataforma_barril1, sobrePlataforma_barril2, sobrePlataforma_barril3, RGBs,sobrePlataforma_mario)
 begin
+	-- Control de Mario sobre plataforma
 	if (RGBm=color_aviso_mario and RGBs=color_plataforma)then
 		p_sobrePlataforma_mario<='1';
 	elsif(RGBm=color_aviso_mario and RGBs="00000000")then
@@ -61,28 +72,55 @@ begin
 	else
 		p_sobrePlataforma_mario <= sobrePlataforma_mario;
 	end if;
-	
-	--RGBin <= RGBs OR RGBm;
 
-	if (RGBb=color_aviso_barril and RGBs=color_plataforma)then
-		p_sobrePlataforma_barril<='1';
-	elsif(RGBb=color_aviso_barril and RGBs="00000000")then
-		p_sobrePlataforma_barril<='0';
+
+	-- Control de barril sobre plataforma
+	if (RGBb1=color_barril and RGBs=color_plataforma)then
+		p_sobrePlataforma_barril1<='1';
+	elsif(RGBb1=color_barril and RGBs="00000000")then
+		p_sobrePlataforma_barril1<='0';
 	else
-		p_sobrePlataforma_barril <= sobrePlataforma_barril;
+		p_sobrePlataforma_barril1 <= sobrePlataforma_barril1;
 	end if;
 	
-	RGBin <= RGBs OR RGBm OR RGBb;		
+	if (RGBb2=color_barril and RGBs=color_plataforma)then
+		p_sobrePlataforma_barril2<='1';
+	elsif(RGBb2=color_barril and RGBs="00000000")then
+		p_sobrePlataforma_barril2<='0';
+	else
+		p_sobrePlataforma_barril2 <= sobrePlataforma_barril2;
+	end if;
+	
+	if (RGBb3=color_barril and RGBs=color_plataforma)then
+		p_sobrePlataforma_barril3<='1';
+	elsif(RGBb3=color_barril and RGBs="00000000")then
+		p_sobrePlataforma_barril3<='0';
+	else
+		p_sobrePlataforma_barril3 <= sobrePlataforma_barril3;
+	end if;
+	
+	-- Control de muerte
+	if ((RGBb1=color_barril OR RGBb2=color_barril OR RGBb3=color_barril) and RGBm=color_mario)then
+		gameover <= '1';
+	else
+		gameover <= '0';
+	end if;
+	
+	RGBin <= RGBs OR RGBm OR RGBb1 OR RGBb2 OR RGBb3;		
 end process;
 
 sinc: process(clk,reset)
 begin
 	if(reset = '1') then
 		sobrePlataforma_mario <= '0';
-		sobrePlataforma_barril <= '0';
+		sobrePlataforma_barril1 <= '0';
+		sobrePlataforma_barril2 <= '0';
+		sobrePlataforma_barril3 <= '0';
 	elsif (rising_edge(clk)) then
 		sobrePlataforma_mario <= p_sobrePlataforma_mario;
-		sobrePlataforma_barril <= p_sobrePlataforma_barril;
+		sobrePlataforma_barril1 <= p_sobrePlataforma_barril1;
+		sobrePlataforma_barril2 <= p_sobrePlataforma_barril2;
+		sobrePlataforma_barril3 <= p_sobrePlataforma_barril3;
 	end if;
 end process;
 

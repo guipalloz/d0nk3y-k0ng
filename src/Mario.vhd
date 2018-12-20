@@ -41,7 +41,8 @@ entity Mario is
            up : in  STD_LOGIC;
            down : in  STD_LOGIC;
            jump : in  STD_LOGIC;
-			  sobrePlat: in STD_LOGIC);
+			  sobrePlatM: in STD_LOGIC;
+			  resets : in STD_LOGIC);
 end Mario;
 
 architecture Behavioral of Mario is
@@ -61,7 +62,7 @@ constant VELY_SALTO:unsigned(4 downto 0):=to_unsigned(10,5);
 
 begin
 
-sinc: process(clk,reset)
+sinc: process(clk,reset,resets)
 begin
 	if(reset = '1') then
 		posx <= to_unsigned(200,10);
@@ -81,9 +82,8 @@ begin
 	end if;
 end process;
 
-repr: process(ejex,ejey, posx, posy)
-	begin
-	--posx+15=unsigned(ejex) AND
+comb: process(ejex,ejey, posx, posy)
+begin	
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 32)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 32)) then
 		RGBm<="11100000"; --Pinta de rojo
 	else
@@ -93,79 +93,90 @@ repr: process(ejex,ejey, posx, posy)
 	if((unsigned(ejex) = posx +16) AND (unsigned(ejey) = (posy + 31))) then
 		RGBm<="11100001"; --Pintamos un único punto amarillo en el medio del cuadrado
 	end if;
+	
 end process;
 
 
-maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlat, jump, jumping, goingUp)
+maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlatM, jump, jumping, goingUp, resets)
 begin
-	p_state<=state;
-	p_posx<=posx;
-	p_posy<=posy;
-	p_vely<= vely;
-	p_jumping<=jumping;
-	p_goingUp <= goingUp;
-	case state is
-		when WAITING =>
-			if (refresh ='1') then
-				p_state<=POS_UPDATE;
-			else
-				p_state<=WAITING;
-			end if;
-			
-			-- Cuando estoy saltando no puedo volver a saltar
-			if (jump = '1') AND (jumping = '0') then
-				p_goingUp <= '1';
-				p_vely <= VELY_SALTO;
-				p_jumping <= '1';
-			end if;
-			
-		when POS_UPDATE =>
-			p_state<=VEL_UPDATE;
-			if (left='1' and posx>VELX) then -- Restricción de no salirme de la pantalla
-				p_posx<=posx-VELX;
-			elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricción en el otro lado de la pantalla
-				p_posx<=posx+VELX;
-			else
-				p_posx<=posx;
-			end if;
-			if(goingUp='0')then
-				if(sobrePlat ='0') then
-					p_posy <= posy + vely;
+	if (resets = '1') then
+		p_posx <= to_unsigned(200,10);
+		p_posy <= to_unsigned(52,10);
+		p_vely <= (others => '0');
+		p_state <= WAITING;
+		p_jumping <= '0';
+		p_goingUp <= '0';
+	else
+		p_state<=state;
+		p_posx<=posx;
+		p_posy<=posy;
+		p_vely<= vely;
+		p_jumping<=jumping;
+		p_goingUp <= goingUp;
+		case state is
+			when WAITING =>
+				if (refresh ='1') then
+					p_state<=POS_UPDATE;
 				else
-					p_posy <= posy-1; -- Me salgo de la plataforma
-					p_jumping<='0';
+					p_state<=WAITING;
 				end if;
-			else
-				if(posy>vely)then 
-					p_posy<=posy-vely; -- Si no me salgo de la pantalla, actualizo gravedad
+				
+				-- Cuando estoy saltando no puedo volver a saltar
+				if (jump = '1') AND (jumping = '0') then
+					p_goingUp <= '1';
+					p_vely <= VELY_SALTO;
+					p_jumping <= '1';
+				end if;
+				
+				
+			when POS_UPDATE =>
+				p_state<=VEL_UPDATE;
+				if (left='1' and posx>VELX) then -- Restricción de no salirme de la pantalla
+					p_posx<=posx-VELX;
+				elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricción en el otro lado de la pantalla
+					p_posx<=posx+VELX;
 				else
-					p_posy<=posy; -- Si me salgo de la pantalla, hay tope
+					p_posx<=posx;
 				end if;
-			end if;
-			
-		when VEL_UPDATE =>
-			p_state <= WAITING;
-			if goingUp = '0' then
-				if sobrePlat = '0' then
-					if (vely<MAX_VELY) then
-						p_vely<=vely+ACEL;
+				if(goingUp='0')then
+					if(sobrePlatM ='0') then
+						p_posy <= posy + vely;
 					else
-						p_vely<=vely;
+						p_posy <= posy-1; -- Me salgo de la plataforma
+						p_jumping<='0';
 					end if;
-				else 
-					p_vely <= (others => '0');
-				end if;
-			else
-					-- Estoy subiendo
-				if vely > ACEL then -- 
-					p_vely <= vely - ACEL;
 				else
-					-- He terminado de subir, empiezo a caer
-					p_vely <= (others => '0');
-					p_goingUp <= '0';
+					if(posy>vely)then 
+						p_posy<=posy-vely; -- Si no me salgo de la pantalla, actualizo gravedad
+					else
+						p_posy<=posy; -- Si me salgo de la pantalla, hay tope
+					end if;
 				end if;
-			end if;
-	end case;
+				
+			when VEL_UPDATE =>
+				p_state <= WAITING;
+				if goingUp = '0' then
+					if sobrePlatM = '0' then
+						if (vely<MAX_VELY) then
+							p_vely<=vely+ACEL;
+						else
+							p_vely<=vely;
+						end if;
+					else 
+						p_vely <= (others => '0');
+					end if;
+				else
+						-- Estoy subiendo
+					if vely > ACEL then -- 
+						p_vely <= vely - ACEL;
+					else
+						-- He terminado de subir, empiezo a caer
+						p_vely <= (others => '0');
+						p_goingUp <= '0';
+					end if;
+				end if;
+		end case;
+	end if;
 end process;
 
 end Behavioral;
