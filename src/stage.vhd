@@ -56,11 +56,11 @@ repr: process(ejex,ejey)
 		RGBs<=color_plataforma; --Pinta 3ª plataforma
 	
 	--Condiciones para pintar cada escalera
-	elsif(unsigned(ejey) >= to_unsigned(340,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+	elsif(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
 		RGBs<=color_escalera; --Pinta 1ª escalera
-	elsif(unsigned(ejey) >= to_unsigned(225,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) >= to_unsigned(160,10)) then
+	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) >= to_unsigned(160,10)) then
 		RGBs<=color_escalera; --Pinta 2ª escalera
-	elsif(unsigned(ejey) >= to_unsigned(110,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
 		RGBs<=color_escalera; --Pinta 3ª escalera
 	end if;
 	
