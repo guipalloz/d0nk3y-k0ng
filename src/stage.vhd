@@ -35,7 +35,9 @@ entity stage is
            RGBs : out  STD_LOGIC_VECTOR(7 downto 0));
 end stage;
 architecture Behavioral of stage is
-constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011"; 
+constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011";
+constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "01101101";
+
 begin
 
 repr: process(ejex,ejey)
@@ -45,16 +47,24 @@ repr: process(ejex,ejey)
 	if(unsigned(ejey) > to_unsigned(430,10)) then
 		RGBs<=color_plataforma; --Pinta suelo
 
+	--Condiciones para pintar cada plataforma
 	elsif(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) < to_unsigned(340,10) AND unsigned(ejex) < to_unsigned(480,10)) then
 		RGBs<=color_plataforma; --Pinta 1ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) < to_unsigned(225,10) AND unsigned(ejex) > to_unsigned(160,10)) then
 		RGBs<=color_plataforma; --Pinta 2ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) < to_unsigned(110,10) AND unsigned(ejex) < to_unsigned(480,10)) then
 		RGBs<=color_plataforma; --Pinta 3ª plataforma
+	
+	--Condiciones para pintar cada escalera
+	elsif(unsigned(ejey) >= to_unsigned(340,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+		RGBs<=color_escalera; --Pinta 1ª escalera
+	elsif(unsigned(ejey) >= to_unsigned(225,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) >= to_unsigned(160,10)) then
+		RGBs<=color_escalera; --Pinta 2ª escalera
+	elsif(unsigned(ejey) >= to_unsigned(110,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+		RGBs<=color_escalera; --Pinta 3ª escalera
 	end if;
+	
 end process;
-
-
 
 end Behavioral;
 
