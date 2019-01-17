@@ -45,8 +45,8 @@ end main;
 architecture Behavioral of main is
 
 signal s_ejex, s_ejey: STD_LOGIC_VECTOR(9 downto 0);
-signal s_RGBm, s_RGBs, s_RGBb1, s_RGBb2, s_RGBb3, s_RGB: STD_LOGIC_VECTOR(7 downto 0);
-signal s_refresh, s_sobrePlatM, s_sobrePlatB1, s_sobrePlatB2, s_sobrePlatB3, s_resets: STD_LOGIC;
+signal s_RGBm, s_RGBs, s_RGBb1, s_RGBb2, s_RGBb3, s_RGB, s_RGBe: STD_LOGIC_VECTOR(7 downto 0);
+signal s_refresh, s_sobrePlatM, s_sobrePlatB1, s_sobrePlatB2, s_sobrePlatB3, s_resets, s_sobreEsc: STD_LOGIC;
 signal s_aparece : STD_LOGIC_VECTOR(2 downto 0);
 
 component DriverVGA is
@@ -72,10 +72,10 @@ component Mario is
            up : in  STD_LOGIC;
            down : in  STD_LOGIC;
            jump : in  STD_LOGIC;
-			  sobrePlatM : in STD_LOGIC;
-			  resets : in STD_LOGIC);
+			  sobrePlatM: in STD_LOGIC;
+			  resets : in STD_LOGIC;
+			  sobreEsc : in STD_LOGIC);
 end component;
-
 component barril is
     Port ( clk : in STD_LOGIC;
 			  reset : in STD_LOGIC;
@@ -91,7 +91,8 @@ end component;
 component stage is
     Port ( ejex : in  STD_LOGIC_VECTOR(9 downto 0);
            ejey : in  STD_LOGIC_VECTOR(9 downto 0);
-           RGBs : out  STD_LOGIC_VECTOR(7 downto 0));
+           RGBs : out  STD_LOGIC_VECTOR(7 downto 0);
+           RGBe : out  STD_LOGIC_VECTOR(7 downto 0));
 end component;
 
 component control is
@@ -102,12 +103,14 @@ component control is
 			  RGBb2 : in  STD_LOGIC_VECTOR(7 downto 0);
 			  RGBb3 : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBs : in  STD_LOGIC_VECTOR(7 downto 0);
+           RGBe : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBin : out  STD_LOGIC_VECTOR(7 downto 0);
 			  sobrePlatM : out  STD_LOGIC;
 			  sobrePlatB1 : out  STD_LOGIC;
 			  sobrePlatB2 : out  STD_LOGIC;
 			  sobrePlatB3 : out  STD_LOGIC;
-			  gameover : out STD_LOGIC); -- Reset síncrono
+			  sobreEsc : out STD_LOGIC;
+			  gameover : out STD_LOGIC);
 end component;
 
 component contador_barriles is
@@ -164,7 +167,8 @@ MiMario: Mario
 				 down => down,
 				 jump => jump,
 				 sobrePlatM => s_sobrePlatM,
-				 resets => s_resets);
+				 resets => s_resets,
+				 sobreEsc => s_sobreEsc);
 VGA: DriverVGA
     Port MAP( clk => clk,
            reset => reset,
@@ -178,7 +182,8 @@ VGA: DriverVGA
 MiStage: stage
 	Port MAP( ejex => s_ejex,
 				 ejey => s_ejey,
-				 RGBs => s_RGBs);
+				 RGBs => s_RGBs,
+				 RGBe => s_RGBe);
 MiControl: control
 	Port MAP(clk => clk,
 				reset => reset,
@@ -187,11 +192,13 @@ MiControl: control
 				RGBb2 => s_RGBb2,
 				RGBb3 => s_RGBb3,
 				RGBs => s_RGBs,
+				RGBe => s_RGBe,
 				RGBin => s_RGB,
 				sobrePlatM => s_sobrePlatM,
 				sobrePlatB1 => s_sobrePlatB1,
 				sobrePlatB2=> s_sobrePlatB2,
 				sobrePlatB3 => s_sobrePlatB3,
+				sobreEsc => s_sobreEsc,
 				gameover => s_resets);
 
 MiContador : contador_barriles

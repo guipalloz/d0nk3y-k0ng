@@ -37,16 +37,19 @@ entity control is
 			  RGBb2 : in  STD_LOGIC_VECTOR(7 downto 0);
 			  RGBb3 : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBs : in  STD_LOGIC_VECTOR(7 downto 0);
+           RGBe : in  STD_LOGIC_VECTOR(7 downto 0);
            RGBin : out  STD_LOGIC_VECTOR(7 downto 0);
 			  sobrePlatM : out  STD_LOGIC;
 			  sobrePlatB1 : out  STD_LOGIC;
 			  sobrePlatB2 : out  STD_LOGIC;
 			  sobrePlatB3 : out  STD_LOGIC;
+			  sobreEsc : out STD_LOGIC;
 			  gameover : out STD_LOGIC);
 end control;
 
 architecture Behavioral of control is
 signal sobrePlataforma_mario, p_sobrePlataforma_mario: std_logic;
+signal sobreEscalera, p_sobreEscalera: std_logic;
 signal sobrePlataforma_barril1, p_sobrePlataforma_barril1: std_logic;
 signal sobrePlataforma_barril2, p_sobrePlataforma_barril2: std_logic;
 signal sobrePlataforma_barril3, p_sobrePlataforma_barril3: std_logic;
@@ -54,6 +57,7 @@ constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011";
 constant color_aviso_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; 
 constant color_barril: STD_LOGIC_VECTOR(7 downto 0):= "10001000";
 constant color_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100000";
+constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011000";
 
 
 begin
@@ -61,9 +65,11 @@ sobrePlatM<=sobrePlataforma_mario;
 sobrePlatB1<=sobrePlataforma_barril1;
 sobrePlatB2<=sobrePlataforma_barril2;
 sobrePlatB3<=sobrePlataforma_barril3;
+sobreEsc<= sobreEscalera;
 
-comb: process(RGBm, RGBb1, RGBb2, RGBb3, sobrePlataforma_barril1, sobrePlataforma_barril2, sobrePlataforma_barril3, RGBs,sobrePlataforma_mario)
+comb: process(RGBm, RGBb1, RGBb2, RGBb3, sobrePlataforma_barril1, sobrePlataforma_barril2, sobrePlataforma_barril3, RGBs,sobrePlataforma_mario, sobreEscalera)
 begin
+	RGBin <= RGBs OR RGBm OR RGBb1 OR RGBb2 OR RGBb3 OR RGBe;
 	-- Control de Mario sobre plataforma
 	if (RGBm=color_aviso_mario and RGBs=color_plataforma)then
 		p_sobrePlataforma_mario<='1';
@@ -106,7 +112,24 @@ begin
 		gameover <= '0';
 	end if;
 	
-	RGBin <= RGBs OR RGBm OR RGBb1 OR RGBb2 OR RGBb3;		
+	-- Control de Mario sobre escalera
+	if (RGBm=color_aviso_mario and RGBe=color_escalera)then
+		p_sobreEscalera<='1';
+	elsif(RGBm=color_aviso_mario and (RGBe="00000000" or RGBs=color_plataforma))then
+		p_sobreEscalera<='0';
+	else
+		p_sobreEscalera <= sobreEscalera;
+	end if;
+	
+	-- Para evitar solapamientos de colores/figuras
+	if (RGBm=color_mario and RGBe=color_escalera) then
+		RGBin<=color_mario;
+	elsif ((RGBb1=color_barril OR RGBb2=color_barril OR RGBb3=color_barril) and RGBe=color_escalera) then
+		RGBin <= color_barril;
+	elsif (RGBs=color_plataforma and RGBe=color_escalera) then
+		RGBin <= color_plataforma;
+	end if;
+	
 end process;
 
 sinc: process(clk,reset)
@@ -116,11 +139,13 @@ begin
 		sobrePlataforma_barril1 <= '0';
 		sobrePlataforma_barril2 <= '0';
 		sobrePlataforma_barril3 <= '0';
+		sobreEscalera <= '0';
 	elsif (rising_edge(clk)) then
 		sobrePlataforma_mario <= p_sobrePlataforma_mario;
 		sobrePlataforma_barril1 <= p_sobrePlataforma_barril1;
 		sobrePlataforma_barril2 <= p_sobrePlataforma_barril2;
 		sobrePlataforma_barril3 <= p_sobrePlataforma_barril3;
+		sobreEscalera <= p_sobreEscalera;
 	end if;
 end process;
 

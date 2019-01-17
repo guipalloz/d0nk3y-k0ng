@@ -42,13 +42,13 @@ entity Mario is
            down : in  STD_LOGIC;
            jump : in  STD_LOGIC;
 			  sobrePlatM: in STD_LOGIC;
-			  resets : in STD_LOGIC);
+			  resets : in STD_LOGIC;
+			  sobreEsc : in STD_LOGIC);
 end Mario;
 
 architecture Behavioral of Mario is
 signal p_posx, p_posy, posx, posy : unsigned(9 downto 0);
-constant VELX : unsigned(4 downto 0):= to_unsigned(3,5);
-constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
+
 signal vely,p_vely: unsigned(4 downto 0);
 signal p_goingUp, goingUp, jumping, p_jumping : STD_LOGIC;
 
@@ -56,6 +56,8 @@ signal p_goingUp, goingUp, jumping, p_jumping : STD_LOGIC;
 type estado is (WAITING, POS_UPDATE, VEL_UPDATE);
 signal state, p_state:estado;
 
+constant VELX : unsigned(4 downto 0):= to_unsigned(3,5);
+constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 constant MAX_VELY:unsigned(4 downto 0):=to_unsigned(25,5);
 constant VELY_SALTO:unsigned(4 downto 0):=to_unsigned(10,5);
 
@@ -65,8 +67,8 @@ begin
 sinc: process(clk,reset,resets)
 begin
 	if(reset = '1') then
-		posx <= to_unsigned(200,10);
-		posy <= to_unsigned(52,10);
+		posx <= to_unsigned(50,10);
+		posy <= to_unsigned(395,10);
 		vely <= (others => '0');
 		state <= WAITING;
 		jumping <= '0';
@@ -97,11 +99,11 @@ begin
 end process;
 
 
-maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlatM, jump, jumping, goingUp, resets)
+maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlatM, jump, jumping, goingUp, resets, sobreEsc, up, down)
 begin
 	if (resets = '1') then
-		p_posx <= to_unsigned(200,10);
-		p_posy <= to_unsigned(52,10);
+		p_posx <= to_unsigned(50,10);
+		p_posy <= to_unsigned(395,10);
 		p_vely <= (others => '0');
 		p_state <= WAITING;
 		p_jumping <= '0';
@@ -131,6 +133,8 @@ begin
 				
 			when POS_UPDATE =>
 				p_state<=VEL_UPDATE;
+				
+				-- Control de posición horizontal
 				if (left='1' and posx>VELX) then -- Restricción de no salirme de la pantalla
 					p_posx<=posx-VELX;
 				elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricción en el otro lado de la pantalla
@@ -138,7 +142,17 @@ begin
 				else
 					p_posx<=posx;
 				end if;
-				if(goingUp='0')then
+				
+				-- Control de posición vertical
+				if(sobreEsc='1' and jumping = '0') then
+					if (up ='1') then
+						p_posy <= posy-1; -- Sube con velocidad 1
+					elsif(down='1') then
+						p_posy <= posy+1;
+					else
+						p_posy <= posy;
+					end if;
+				elsif(goingUp='0')then
 					if(sobrePlatM ='0') then
 						p_posy <= posy + vely;
 					else
@@ -155,26 +169,30 @@ begin
 				
 			when VEL_UPDATE =>
 				p_state <= WAITING;
-				if goingUp = '0' then
-					if sobrePlatM = '0' then
-						if (vely<MAX_VELY) then
-							p_vely<=vely+ACEL;
-						else
-							p_vely<=vely;
-						end if;
-					else 
+				
+					if (sobreEsc = '1' and (up = '1' or down ='1')) then
 						p_vely <= (others => '0');
-					end if;
-				else
-						-- Estoy subiendo
-					if vely > ACEL then -- 
-						p_vely <= vely - ACEL;
 					else
-						-- He terminado de subir, empiezo a caer
-						p_vely <= (others => '0');
-						p_goingUp <= '0';
+						if goingUp = '0' then
+							if sobrePlatM = '0' then
+								if (vely<MAX_VELY) then
+									p_vely<=vely+ACEL;
+								else
+									p_vely<=vely;
+								end if;
+							else 
+								p_vely <= (others => '0');
+							end if;	
+						else
+							if vely > ACEL then -- 
+								p_vely <= vely - ACEL;
+							else
+								-- He terminado de subir, empiezo a caer
+								p_vely <= (others => '0');
+								p_goingUp <= '0';
+							end if;
+						end if;
 					end if;
-				end if;
 		end case;
 	end if;
 end process;

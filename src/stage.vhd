@@ -32,12 +32,12 @@ use IEEE.NUMERIC_STD.ALL;
 entity stage is
     Port ( ejex : in  STD_LOGIC_VECTOR(9 downto 0);
            ejey : in  STD_LOGIC_VECTOR(9 downto 0);
-           RGBs : out  STD_LOGIC_VECTOR(7 downto 0));
+           RGBs : out  STD_LOGIC_VECTOR(7 downto 0);
+			  RGBe : out  STD_LOGIC_VECTOR(7 downto 0));
 end stage;
 architecture Behavioral of stage is
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011";
-constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "01101101";
-
+constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011000";
 begin
 
 repr: process(ejex,ejey)
@@ -54,14 +54,17 @@ repr: process(ejex,ejey)
 		RGBs<=color_plataforma; --Pinta 2ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) < to_unsigned(110,10) AND unsigned(ejex) < to_unsigned(480,10)) then
 		RGBs<=color_plataforma; --Pinta 3ª plataforma
+	end if;
 	
+-- Pintamos la escalera, necesitamos diferenciar para poder activar sobrePlat y sobreEsc a la vez
 	--Condiciones para pintar cada escalera
-	elsif(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
-		RGBs<=color_escalera; --Pinta 1ª escalera
-	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) >= to_unsigned(160,10)) then
-		RGBs<=color_escalera; --Pinta 2ª escalera
-	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) <= to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
-		RGBs<=color_escalera; --Pinta 3ª escalera
+	RGBe<="00000000";
+	if(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) < to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+		RGBe<=color_escalera; --Pinta 1ª escalera
+	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) > to_unsigned(160,10)) then
+		RGBe<=color_escalera; --Pinta 2ª escalera
+	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) < to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
+		RGBe<=color_escalera; --Pinta 3ª escalera
 	end if;
 	
 end process;
