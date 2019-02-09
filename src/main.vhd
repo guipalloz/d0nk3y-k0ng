@@ -95,7 +95,7 @@ component stage is
 end component;
 
 -- Bloque de control que se encarga de recibir todas las componentes RGB de cada bloque y decidir cuál debe pintarse
--- en cada momento. Además, se controlan otros aspectos como la muerte del personaje así como que tanto Mario como
+-- en cada momento. Además, se controlan otros aspectos como la muerte del personaje y que tanto Mario como
 -- los barriles estén en contacto con las plataformas.
 component control is
     Port ( clk : in  STD_LOGIC;
