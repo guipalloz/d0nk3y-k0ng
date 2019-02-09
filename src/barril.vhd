@@ -19,7 +19,7 @@ use IEEE.NUMERIC_STD.ALL;
 -- Recibe como entrada las coordenadas vertical y horizontal del píxel, y otras señales de activación como sobrePlatB o aparece.
 -- Devuelve a su salida una señal de 8 bits que indica los colores correspondientes del barril que toca pintar
 
--- Señales de interés:
+-- Puertos de interés:
 
 -- sobrePlatB. 		Señal de activación que se pone a '1' cuando el barril ha aterrizado sobre una Plataforma. Se activa en el bloque Control
 -- aparece. 		Señal que habilita la aparición de un barril. Generada por el bloque contador_barriles
