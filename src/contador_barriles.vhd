@@ -21,9 +21,9 @@ use IEEE.NUMERIC_STD.ALL;
 -- aparece. Señal de salida de 3 bits que habilita la generación de un barril. Cada bit habilita la generación de un barril diferente
 entity contador_barriles is
     Port ( clk : in  STD_LOGIC;
-			  reset : in  STD_LOGIC;
-			  resets : in STD_LOGIC;
-			  aparece : out  STD_LOGIC_VECTOR (2 downto 0));
+	   reset : in  STD_LOGIC;
+	   resets : in STD_LOGIC;
+	   aparece : out  STD_LOGIC_VECTOR (2 downto 0));
 end contador_barriles;
 
 architecture Behavioral of contador_barriles is
