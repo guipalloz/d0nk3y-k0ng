@@ -21,14 +21,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- ejex, ejey: Señales de salida correspondientes con las coordenadas horizontal y vertical, respectivamente
 -- RGBout: Señal de salida que representa el color en 8 bits que se corresponderá con el píxel indicado
 entity DriverVGA is
-    Port ( clk : in  STD_LOGIC;
-           reset : in  STD_LOGIC;
-			  RGBin : in  STD_LOGIC_VECTOR(7 downto 0);
-           HS : out  STD_LOGIC;
-           VS : out  STD_LOGIC;
-			  refresh : out STD_LOGIC;
-			  ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0);
-           RGBout : out  STD_LOGIC_VECTOR(7 downto 0));
+    Port (clk : in  STD_LOGIC;
+          reset : in  STD_LOGIC;
+	  RGBin : in  STD_LOGIC_VECTOR(7 downto 0);
+          HS : out  STD_LOGIC;
+          VS : out  STD_LOGIC;
+	  refresh : out STD_LOGIC;
+	  ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0);
+          RGBout : out  STD_LOGIC_VECTOR(7 downto 0));
 end DriverVGA;
 
 -- Descripción de la arquitectura
@@ -44,11 +44,10 @@ signal Qx, Qy : STD_LOGIC_VECTOR (9 downto 0);
 component contador is
     Generic (Nbit: INTEGER := 8);
 	 Port ( enable : in  STD_LOGIC;
-           clk : in  STD_LOGIC;
-			  reset : in STD_LOGIC;
-			  resets : in STD_LOGIC;
-			  Q : out STD_LOGIC_VECTOR (Nbit-1 downto 0));
-			  
+           	clk : in  STD_LOGIC;
+		reset : in STD_LOGIC;
+ 	  	resets : in STD_LOGIC;
+		Q : out STD_LOGIC_VECTOR (Nbit-1 downto 0)); 
 end component;
 
 -- Comparador síncrono
@@ -58,13 +57,12 @@ component comparador is
 	Start_Of_Pulse: integer :=20;
 	End_Of_Pulse: integer :=30;
 	End_Of_Line: integer :=40);
-	Port (clk : in STD_LOGIC;
-			reset : in STD_LOGIC;
-			data : in STD_LOGIC_VECTOR (Nbit-1 downto 0);
-			
-			O1 : out STD_LOGIC;
-			O2 : out STD_LOGIC;
-			O3 : out STD_LOGIC);
+	Port ( clk : in STD_LOGIC;
+	       reset : in STD_LOGIC;
+	       data : in STD_LOGIC_VECTOR (Nbit-1 downto 0);	
+	       O1 : out STD_LOGIC;
+	       O2 : out STD_LOGIC;
+	       O3 : out STD_LOGIC);
 end component;
 
 begin
@@ -96,11 +94,11 @@ comph: comparador
 		End_Of_Pulse => 751,
 		End_Of_Line => 799)
 	Port MAP (clk => clk,
-			reset => reset,
-			data => Qx,
-			O1 => Blank_H,
-			O2 => HS,
-			O3 => resets1O);
+		reset => reset,
+		data => Qx,
+		O1 => Blank_H,
+		O2 => HS,
+		O3 => resets1O);
 			
 compv: comparador
 	Generic MAP (
@@ -116,7 +114,6 @@ compv: comparador
 			O2 => VS,
 			O3 => resets2O);
 	
-	
 
 ejex <= Qx;
 ejey <= Qy;
@@ -127,7 +124,7 @@ enable2 <= resets1O AND clk_pixel;
 -- Bloque frec_pixel, directamente diseñado en el nivel de jerarquia superior
 pclk_pixel <= not clk_pixel;
 
--- Proceso contador para dividir la frecuencia de reloj a una frecuencia apreciable por el ojo humano.
+-- Proceso síncrono contador para dividir la frecuencia de reloj a una frecuencia apreciable por el ojo humano.
 div_frec: process(clk, reset)
 begin
 	if(reset='1') then
@@ -137,7 +134,7 @@ begin
 	end if;
 end process;
 
--- Proceso encargado de no mostrar ningún color cuando se está volviendo a otra línea de la imagen
+-- Proceso combinacional encargado de no mostrar ningún color cuando se está volviendo a otra línea de la imagen
 gen_color: process(Blank_H, Blank_V, RGBin)
 begin
 	if (Blank_H ='1' or Blank_V = '1') then
