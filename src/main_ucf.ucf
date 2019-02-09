@@ -1,0 +1,17 @@
+NET "clk" LOC = "M6";
+NET "reset" LOC = "N3";
+NET "HS" LOC = "J14";
+NET "VS" LOC = "K13";
+NET "RGBout(7)" LOC = "F13";
+NET "RGBout(6)" LOC = "D13";
+NET "RGBout(5)" LOC = "C14";
+NET "RGBout(4)" LOC = "G14";
+NET "RGBout(3)" LOC = "G13";
+NET "RGBout(2)" LOC = "F14";
+NET "RGBout(1)" LOC = "J13";
+NET "RGBout(0)" LOC = "H13";
+NET "left" LOC = "A7";
+NET "right" LOC = "G12";
+NET "jump" LOC = "M4";
+NET "up" LOC = "C11";
+NET "down" LOC = "P11";

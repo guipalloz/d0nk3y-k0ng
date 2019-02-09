@@ -1,47 +1,46 @@
-
--------------------------------------------------------------------
---	Trabajo Donkey Kong - Complementos de ElectrÃ³nica	 --
---	MÃ¡ster Universitario en IngenierÃ­a de TelecomunicaciÃ³n 	 --
---	Universidad de Sevilla, Curso 2018/2019			 --	
---								 --	
---	Autores:						 --
---								 --
---		- JosÃ© Manuel Gata Romero  			 --
---		- Ildefonso JimÃ©nez Silva			 --
---		- Guillermo Palomino Lozano			 --
---								 --
--------------------------------------------------------------------
+--------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 				--
+--	Máster Universitario en Ingenierí­a de Telecomunicación 		 	--
+--	Universidad de Sevilla, Curso 2018/2019			 					--	
+--								 														--	
+--	Autores:						 													--
+--																						--
+--		- José Manuel Gata Romero  			 								--
+--		- Ildefonso Jiménez Silva			 									--
+--		- Guillermo Palomino Lozano			 								--
+--								 														--
+--------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
--- Componente barril encargado tanto del movimiento como de la representaciÃ³n de los barriles. 
--- Recibe como entrada las coordenadas vertical y horizontal del pÃ­xel, y otras seÃ±ales de activaciÃ³n como sobrePlatB o aparece.
--- Devuelve a su salida una seÃ±al de 8 bits que indica los colores correspondientes del barril que toca pintar
+-- Componente barril encargado tanto del movimiento como de la representación de los barriles. 
+-- Recibe como entrada las coordenadas vertical y horizontal del píxel, y otras señales de activación como sobrePlatB o aparece.
+-- Devuelve a su salida una señal de 8 bits que indica los colores correspondientes del barril que toca pintar
 
--- Puertos de interÃ©s:
+-- Puertos de interés:
 
--- sobrePlatB. 		SeÃ±al de activaciÃ³n que se pone a '1' cuando el barril ha aterrizado sobre una Plataforma. Se activa en el bloque Control
--- aparece. 		SeÃ±al que habilita la apariciÃ³n de un barril. Generada por el bloque contador_barriles
--- refresh. 		SeÃ±al que indica que todos los pÃ­xeles de la pantalla han sido pintados y se vuelve a comenzar. Para este bloque significa
---				que debe de actualizar el valor de la posiciÃ³n y velocidad de los barriles.
--- RGBb. 		SeÃ±al de salida que indica, dados un pÃ­xel determinado por ejex y ejey, quÃ© valor debe pintarse en referencia al mapa de barriles.
--- resets. 		Reset sÃ­ncrono que se activa a nivel alto cuando Mario muere o cuando acaba el juego.
+-- sobrePlatB. 	Señal de activación que se pone a '1' cuando el barril ha aterrizado sobre una Plataforma. Se activa en el bloque Control
+-- aparece. 		Señal que habilita la aparición de un barril. Generada por el bloque contador_barriles
+-- refresh. 		Señal que indica que todos los píxeles de la pantalla han sido pintados y se vuelve a comenzar. Para este bloque significa
+--							que debe de actualizar el valor de la posición y velocidad de los barriles.
+-- RGBb. 			Señal de salida que indica, dados un píxel determinado por ejex y ejey, qué valor debe pintarse en referencia al mapa de barriles.
+-- resets. 			Reset síncrono que se activa a nivel alto cuando Mario muere o cuando acaba el juego.
 
 entity barril is
-    Port ( clk : in STD_LOGIC;
-	   reset : in STD_LOGIC;
-	   ejex : in  STD_LOGIC_VECTOR(9 downto 0);
-	   ejey : in  STD_LOGIC_VECTOR(9 downto 0);
-	   sobrePlatB : in  STD_LOGIC;
-	   aparece : in  STD_LOGIC;
-	   refresh : in STD_LOGIC;
-	   RGBb : out  STD_LOGIC_VECTOR(7 downto 0);
-	   resets : in STD_LOGIC);
+    Port ( 	clk : in STD_LOGIC;
+				reset : in STD_LOGIC;
+				ejex : in  STD_LOGIC_VECTOR(9 downto 0);
+				ejey : in  STD_LOGIC_VECTOR(9 downto 0);
+				sobrePlatB : in  STD_LOGIC;
+				aparece : in  STD_LOGIC;
+				refresh : in STD_LOGIC;
+				RGBb : out  STD_LOGIC_VECTOR(7 downto 0);
+				resets : in STD_LOGIC);
 end barril;
 
 architecture Behavioral of barril is
--- DeclaraciÃ³n de las seÃ±ales utilizadas en este bloque
+-- Declaración de las señales utilizadas en este bloque
 
 -- Constantes que marcan distintas velocidades y aceleraciones prefijadas
 constant MAX_VELY : unsigned(4 downto 0):=to_unsigned(25,5);
@@ -49,7 +48,7 @@ constant VELX : unsigned(4 downto 0):= to_unsigned(5,5);
 constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 constant suelo : unsigned (9 downto 0) := to_unsigned(431,10);
 
--- SeÃ±ales auxiliares para garantizar el buen funcionamiento de los procesos sÃ­ncronos.
+-- Señales auxiliares para garantizar el buen funcionamiento de los procesos síncronos.
 signal p_posx, p_posy, posx, posy, ejex_aux, ejey_aux : unsigned(9 downto 0);
 signal vely,p_vely: unsigned(4 downto 0);
 signal p_sentido, sentido, restart,p_restart: STD_LOGIC; 
@@ -60,12 +59,12 @@ signal state, p_state:estado;
 
 --MEMORIA
 
--- SeÃ±al para el direccionamiento
+-- Señal para el direccionamiento
 signal s_addr : STD_LOGIC_VECTOR(8 downto 0);
--- SeÃ±al para los datos
+-- Señal para los datos
 signal s_data : STD_LOGIC_VECTOR(2 downto 0);
 
--- DeclaraciÃ³n de la memoria generado por el CORE Generator
+-- Declaración de la memoria generado por el CORE Generator
 COMPONENT barrilROM
   PORT (
     clka : IN STD_LOGIC;
@@ -76,7 +75,7 @@ END COMPONENT;
 
 
 begin
--- InstanciaciÃ³n de la memoria
+-- Instanciación de la memoria
 mibarril : barrilROM
   PORT MAP (
     clka => clk,
@@ -84,7 +83,7 @@ mibarril : barrilROM
     douta => s_data
   );
 
--- Proceso encargado de garantizar la sincronÃ­a. Bajo la estructura seguida durante toda la asignatura.
+-- Proceso encargado de garantizar la sincronía. Bajo la estructura seguida durante toda la asignatura.
 sinc: process(clk,reset)
 begin
 	if(reset = '1') then
@@ -96,7 +95,7 @@ begin
 		sentido<='1';
 		restart <= '0';
 	elsif(rising_edge(clk)) then
-		-- Cuando pasa un ciclo de reloj: Los prÃ³ximos valores pasan a ser los actuales
+		-- Cuando pasa un ciclo de reloj: Los próximos valores pasan a ser los actuales
 		posx <= p_posx;
 		posy <= p_posy;
 		vely <= p_vely;
@@ -120,12 +119,12 @@ begin
 		s_addr(7 downto 4) <= std_logic_vector(ejey_aux(3 downto 0));
 		s_addr(3 downto 0) <= std_logic_vector(ejex_aux(3 downto 0));
 	end if;
-	-- SeÃ±ales adicionales para poder asociar una posiciÃ³n de la memoria a una posiciÃ³n en la pantalla
+	-- Señales adicionales para poder asociar una posición de la memoria a una posición en la pantalla
 	ejex_aux <= unsigned(ejex)-posx;
 	ejey_aux <= unsigned(ejey)-posy;
 	
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 16)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 16)) then
-		-- Si toca pintar el barril, vemos quÃ© datos hay a la salida
+		-- Si toca pintar el barril, vemos qué datos hay a la salida
 		RGBb<= s_data(2) & s_data(2) & s_data(2) & s_data(1) & s_data(1) & s_data(1) & s_data(0) & s_data(0);
 	else
 		-- Si no toca pintar un barril, pintamos el color negro
@@ -133,16 +132,16 @@ begin
 	end if;
 	
 	if((unsigned(ejex) = posx +8) AND (unsigned(ejey) = (posy + 16))) then
-		-- Pintamos un Ãºnico punto amarillo en el medio del barril para poder gestionar las acciones (se hace en Control.vhd)
+		-- Pintamos un único punto amarillo en el medio del barril para poder gestionar las acciones (se hace en Control.vhd)
 		RGBb<="10001000";
 	end if;
 end process;
 
--- MÃ¡quina de Estados Finita asociada al comportamiento del barril
+-- Máquina de Estados Finita asociada al comportamiento del barril
 maquina_estado: process(restart,refresh,posx, posy, vely, state, sentido, aparece, sobrePlatB, resets)
 begin
-	-- resets: Reset sÃ­ncrono activo a nivel alto asociado a fin de juego
-	-- restart: Reset sÃ­ncrono activo a nivel alto que se activa cuando un barril finaliza su recorrido
+	-- resets: Reset síncrono activo a nivel alto asociado a fin de juego
+	-- restart: Reset síncrono activo a nivel alto que se activa cuando un barril finaliza su recorrido
 	if (resets = '1' OR restart = '1') then
 		p_posx <= to_unsigned(1008,10);
 		p_posy <= to_unsigned(0,10);
@@ -151,7 +150,7 @@ begin
 		p_sentido<='1';
 		p_restart <= '0';
 	else
-		-- Si no se cambian durante el proceso, las seÃ±ales conservan sus valores anteriores.
+		-- Si no se cambian durante el proceso, las señales conservan sus valores anteriores.
 		p_state <= state;
 		p_posx <= posx;
 		p_posy <= posy;
@@ -159,8 +158,8 @@ begin
 		p_sentido <= sentido;
 		p_restart <= restart;
 		case state is
-			-- Estado WAITING. Permanece a la espera hasta que se activa la seÃ±al aparece 
-			-- que indica la apariciÃ³n de un barril en el juego
+			-- Estado WAITING. Permanece a la espera hasta que se activa la señal aparece 
+			-- que indica la aparición de un barril en el juego
 			when WAITING =>
 				if aparece='1' then
 					p_state <= FALLING;
@@ -173,19 +172,19 @@ begin
 			-- Estado FALLING. El barril cae por todo el escenario hasta que llega al final del mapa
 			when FALLING =>
 				if (refresh ='1') then
-					-- Se actualiza la posiciÃ³n
+					-- Se actualiza la posición
 					p_state<=POS_UPDATE;
 				elsif ((posy + 15 = suelo) AND (posx < VELX)) then
-					-- Hemos llegado al final, reset sÃ­ncrono interno del barril para que vuelva a esperar seÃ±al de aparece
+					-- Hemos llegado al final, reset síncrono interno del barril para que vuelva a esperar señal de aparece
 					p_restart <= '1';
 					p_state <= WAITING;
 				else
 					p_state<=FALLING;
 				end if;
-			-- Estado POS_UPDATE. Actualiza la posiciÃ³n del barril como corresponda
+			-- Estado POS_UPDATE. Actualiza la posición del barril como corresponda
 			when POS_UPDATE =>
 				p_state<=VEL_UPDATE;
-			-- Control de posiciÃ³n horizontal
+				-- Control de posición horizontal
 				if (sentido ='0') then
 					-- Si vamos hacia la izquierda, esperamos hasta llegar al final de la pantalla
 					if (posx < VELX) then
@@ -206,7 +205,7 @@ begin
 					end if;
 				end if;			
 				
-			-- Control de posiciÃ³n vertical
+			-- Control de posición vertical
 				if(sobrePlatB ='0') then
 					-- Estoy Cayendo, aumento la velocidad
 					p_posy <= posy + vely;
@@ -217,16 +216,16 @@ begin
 			
 			-- Estado VEL_UPDATE
 			when VEL_UPDATE =>
-			-- Control de posiciÃ³n horizontal: es una constante (VELX) por lo que no se hace nada
-			-- Control de posiciÃ³n vertical
+			-- Control de posición horizontal: es una constante (VELX) por lo que no se hace nada
+			-- Control de posición vertical
 				p_state <= FALLING;
 				if sobrePlatB = '0' then
 					-- Si no estoy sobre una plataforma tengo que caer
 					if (vely<MAX_VELY) then
-						-- Si no he llegado al lÃ­mite de velocidad mÃ¡xima sigo aumentando la velocidad
+						-- Si no he llegado al límite de velocidad máxima sigo aumentando la velocidad
 						p_vely<=vely+ACEL;
 					else
-						-- Si he llegado al lÃ­mite mÃ¡ximo no acelero mÃ¡s
+						-- Si he llegado al límite máximo no acelero más
 						p_vely<=vely;
 					end if;
 				else 

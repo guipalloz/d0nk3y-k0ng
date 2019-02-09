@@ -1,20 +1,17 @@
--------------------------------------------------------------------
---	Trabajo Donkey Kong - Complementos de ElectrÃ³nica	 --
---	MÃ¡ster Universitario en IngenierÃ­a de TelecomunicaciÃ³n 	 --
---	Universidad de Sevilla, Curso 2018/2019			 --	
---								 --	
---	Autores:						 --
---								 --
---		- JosÃ© Manuel Gata Romero  			 --
---		- Ildefonso JimÃ©nez Silva			 --
---		- Guillermo Palomino Lozano			 --
---								 --
--------------------------------------------------------------------
+--------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 				--
+--	Máster Universitario en Ingenierí­a de Telecomunicación 		 	--
+--	Universidad de Sevilla, Curso 2018/2019			 					--	
+--								 														--	
+--	Autores:						 													--
+--																						--
+--		- José Manuel Gata Romero  			 								--
+--		- Ildefonso Jiménez Silva			 									--
+--		- Guillermo Palomino Lozano			 								--
+--								 														--
+--------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
 entity comparador is
@@ -39,7 +36,7 @@ signal data_in : unsigned(Nbit-1 downto 0);
 begin
 data_in <= unsigned(data);
 
--- Proceso sÃ­ncrono
+-- Proceso sí­ncrono
 sinc: process(clk, reset)
 begin
 	if (reset = '1') then

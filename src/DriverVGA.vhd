@@ -1,56 +1,56 @@
--------------------------------------------------------------------
---	Trabajo Donkey Kong - Complementos de ElectrÃ³nica	 --
---	MÃ¡ster Universitario en IngenierÃ­a de TelecomunicaciÃ³n 	 --
---	Universidad de Sevilla, Curso 2018/2019			 --	
---								 --	
---	Autores:						 --
---								 --
---		- JosÃ© Manuel Gata Romero  			 --
---		- Ildefonso JimÃ©nez Silva			 --
---		- Guillermo Palomino Lozano			 --
---								 --
--------------------------------------------------------------------
+--------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 				--
+--	Máster Universitario en Ingenierí­a de Telecomunicación 		 	--
+--	Universidad de Sevilla, Curso 2018/2019			 					--	
+--								 														--	
+--	Autores:						 													--
+--																						--
+--		- José Manuel Gata Romero  			 								--
+--		- Ildefonso Jimánez Silva			 									--
+--		- Guillermo Palomino Lozano			 								--
+--								 														--
+--------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- DescripciÃ³n de la entidad: DeclaraciÃ³n de puertos del DriverVGA
--- RGBin: SeÃ±al de entrada que indica el color RGB generado por el bloque Control
--- HS: SeÃ±al de salida que indica el pulso de sincronismo horizontal
--- HV: SeÃ±al de salida que indica el pulso de sincronismo vertical
--- refresh: SeÃ±al de salida que indica la terminaciÃ³n de la representaciÃ³n de una pantalla
--- ejex, ejey: SeÃ±ales de salida correspondientes con las coordenadas horizontal y vertical, respectivamente
--- RGBout: SeÃ±al de salida que representa el color en 8 bits que se corresponderÃ¡ con el pÃ­xel indicado
+-- Descripción de la entidad: Declaración de puertos del DriverVGA
+-- RGBin: Señal de entrada que indica el color RGB generado por el bloque Control
+-- HS: Señal de salida que indica el pulso de sincronismo horizontal
+-- HV: Señal de salida que indica el pulso de sincronismo vertical
+-- refresh: Señal de salida que indica la terminación de la representación de una pantalla
+-- ejex, ejey: Señales de salida correspondientes con las coordenadas horizontal y vertical, respectivamente
+-- RGBout: Señal de salida que representa el color en 8 bits que se corresponderá con el pí­xel indicado
 entity DriverVGA is
-    Port (clk : in  STD_LOGIC;
-          reset : in  STD_LOGIC;
-	  RGBin : in  STD_LOGIC_VECTOR(7 downto 0);
-          HS : out  STD_LOGIC;
-          VS : out  STD_LOGIC;
-	  refresh : out STD_LOGIC;
-	  ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0);
-          RGBout : out  STD_LOGIC_VECTOR(7 downto 0));
+    Port (	clk : in  STD_LOGIC;
+				reset : in  STD_LOGIC;
+				RGBin : in  STD_LOGIC_VECTOR(7 downto 0);
+				HS : out  STD_LOGIC;
+				VS : out  STD_LOGIC;
+				refresh : out STD_LOGIC;
+				ejex, ejey : out STD_LOGIC_VECTOR(9 downto 0);
+				RGBout : out  STD_LOGIC_VECTOR(7 downto 0));
 end DriverVGA;
 
--- DescripciÃ³n de la arquitectura
+-- Descripción de la arquitectura
 architecture Behavioral of DriverVGA is
 	
--- DeclaraciÃ³n de seÃ±ales internas utilizadas en procesos y para la interconexiÃ³n de bloques
+-- Declaración de señales internas utilizadas en procesos y para la interconexión de bloques
 signal clk_pixel, pclk_pixel, resets1O, resets2O, Blank_h, Blank_v, enable2 : STD_LOGIC;
 signal Qx, Qy : STD_LOGIC_VECTOR (9 downto 0);
 
--- DeclaraciÃ³n de componentes
+-- Declaración de componentes
 
--- Contador sÃ­ncrono de Nbit con habilitaciÃ³n y reset sÃ­ncrono.
+-- Contador sí­ncrono de Nbit con habilitación y reset sí­ncrono.
 component contador is
     Generic (Nbit: INTEGER := 8);
-	 Port ( enable : in  STD_LOGIC;
+	 Port ( 	enable : in  STD_LOGIC;
            	clk : in  STD_LOGIC;
-		reset : in STD_LOGIC;
- 	  	resets : in STD_LOGIC;
-		Q : out STD_LOGIC_VECTOR (Nbit-1 downto 0)); 
+				reset : in STD_LOGIC;
+				resets : in STD_LOGIC;
+				Q : out STD_LOGIC_VECTOR (Nbit-1 downto 0)); 
 end component;
 
--- Comparador sÃ­ncrono
+-- Comparador sí­ncrono
 component comparador is
 	Generic (Nbit: integer :=8;
 	End_Of_Screen: integer :=10;
@@ -67,24 +67,24 @@ end component;
 
 begin
 	
--- InstanciaciÃ³n de cada uno de los componentes ya mencionados arriba.			  
+-- Instanciación de cada uno de los componentes ya mencionados arriba.			  
 contadorh: contador
 	GENERIC MAP (Nbit => 10)
 	PORT MAP(
-		enable => clk_pixel,
-		clk => clk,
-		reset => reset,
-		Q => Qx,
-		resets => resets1O);
+			enable => clk_pixel,
+			clk => clk,
+			reset => reset,
+			Q => Qx,
+			resets => resets1O);
 		
 contadorv: contador
 	GENERIC MAP (Nbit => 10)
 	PORT MAP(
-		enable => enable2,
-		clk => clk,
-		reset => reset,
-		Q => Qy,
-		resets => resets2O);
+			enable => enable2,
+			clk => clk,
+			reset => reset,
+			Q => Qy,
+			resets => resets2O);
 		
 comph: comparador
 	Generic MAP (
@@ -94,11 +94,11 @@ comph: comparador
 		End_Of_Pulse => 751,
 		End_Of_Line => 799)
 	Port MAP (clk => clk,
-		reset => reset,
-		data => Qx,
-		O1 => Blank_H,
-		O2 => HS,
-		O3 => resets1O);
+			reset => reset,
+			data => Qx,
+			O1 => Blank_H,
+			O2 => HS,
+			O3 => resets1O);
 			
 compv: comparador
 	Generic MAP (
@@ -121,10 +121,10 @@ refresh <= resets2O;
 
 enable2 <= resets1O AND clk_pixel;
 
--- Bloque frec_pixel, directamente diseÃ±ado en el nivel de jerarquia superior
+-- Bloque frec_pixel, directamente diseñado en el nivel de jerarquia superior
 pclk_pixel <= not clk_pixel;
 
--- Proceso sÃ­ncrono contador para dividir la frecuencia de reloj a una frecuencia apreciable por el ojo humano.
+-- Proceso sí­ncrono contador para dividir la frecuencia de reloj a una frecuencia apreciable por el ojo humano.
 div_frec: process(clk, reset)
 begin
 	if(reset='1') then
@@ -134,7 +134,7 @@ begin
 	end if;
 end process;
 
--- Proceso combinacional encargado de no mostrar ningÃºn color cuando se estÃ¡ volviendo a otra lÃ­nea de la imagen
+-- Proceso combinacional encargado de no mostrar ningún color cuando se está volviendo a otra lí­nea de la imagen
 gen_color: process(Blank_H, Blank_V, RGBin)
 begin
 	if (Blank_H ='1' or Blank_V = '1') then

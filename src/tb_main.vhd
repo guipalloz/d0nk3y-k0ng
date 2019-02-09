@@ -1,22 +1,22 @@
--------------------------------------------------------------------
---	Trabajo Donkey Kong - Complementos de ElectrÃ³nica	 --
---	MÃ¡ster Universitario en IngenierÃ­a de TelecomunicaciÃ³n 	 --
---	Universidad de Sevilla, Curso 2018/2019			 --	
---								 --	
---	Autores:						 --
---								 --
---		- JosÃ© Manuel Gata Romero  			 --
---		- Ildefonso JimÃ©nez Silva			 --
---		- Guillermo Palomino Lozano			 --
---								 --
--------------------------------------------------------------------
+--------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 				--
+--	Máster Universitario en Ingenierí­a de Telecomunicación 		 	--
+--	Universidad de Sevilla, Curso 2018/2019			 					--	
+--								 														--	
+--	Autores:						 													--
+--																						--
+--		- José Manuel Gata Romero  			 								--
+--		- Ildefonso Jiménez Silva			 									--
+--		- Guillermo Palomino Lozano			 								--
+--								 														--
+--------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 use ieee.std_logic_textio.all;
 use std.textio.all;
 USE ieee.numeric_std.ALL;
 
--- Test bench utilizado durante un momento en una PRIMERA VERSIÃ“N del trabajo para comprobar que 
+-- Test bench utilizado durante un momento en una PRIMERA VERSIÓN del trabajo para comprobar que 
 -- 	se pintaban distintos elementos tales como las plataformas o el cuadrado del Mario correctamente
 
 -- Se incluye por si el profesor considera oportuno echarle un vistazo.
