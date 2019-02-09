@@ -1,33 +1,21 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    11:51:02 10/30/2018 
--- Design Name: 
--- Module Name:    contador - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 --
+--	Máster Universitario en Ingeniería de Telecomunicación 	 --
+--	Universidad de Sevilla, Curso 2018/2019			 --	
+--								 --	
+--	Autores:						 --
+--								 --
+--		- José Manuel Gata Romero  			 --
+--		- Ildefonso Jiménez Silva			 --
+--		- Guillermo Palomino Lozano			 --
+--								 --
+-------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity contador is
     Generic (Nbit: INTEGER := 8);
@@ -40,19 +28,16 @@ entity contador is
 end contador;
 
 architecture Behavioral of contador is
-
 SIGNAL pcuenta, cuenta : unsigned (Nbit-1 downto 0);
  
 begin
 
--- Proceso sincrono, almacena el valor de la cuenta
+-- Proceso síncrono, almacena el valor de la cuenta
 -- in: p_cuenta
 -- out: cuenta
 
 sinc: process(clk,reset)
 begin
--- OJO, queremos una memoria de forma controlada, quiero generar un biestable aposta y por tanto no me generar� un LATCH indeseado. 
--- Generar� un biestable para conservar su valor.
 	if(reset = '1') then
 		cuenta <= (others => '0');
 	elsif (rising_edge(clk)) then
@@ -64,7 +49,6 @@ end process;
 -- Proceso combinacional, actualiza el valor de cuenta.
 -- in: p_cuenta
 -- out: cuenta
-
 
 comb: process(cuenta,enable,resets)
 begin
@@ -78,7 +62,6 @@ begin
 end process;
 
 Q <= std_logic_vector(cuenta);
-
 
 end Behavioral;
 
