@@ -40,10 +40,10 @@ entity Mario is
            up : in  STD_LOGIC;
            down : in  STD_LOGIC;
            jump : in  STD_LOGIC;
-			  sobrePlatM: in STD_LOGIC;
-			  resets : in STD_LOGIC;
-			  sobreEsc : in STD_LOGIC);
-	RGBm : out  STD_LOGIC_VECTOR(7 downto 0);
+       	   sobrePlatM: in STD_LOGIC;
+ 	   resets : in STD_LOGIC;
+	   sobreEsc : in STD_LOGIC);
+	   RGBm : out  STD_LOGIC_VECTOR(7 downto 0);
 end Mario;
 
 -- Descripción de la arquitectura
@@ -224,35 +224,35 @@ begin
 			-- VEL_UPDATE: estado en el que se actualiza la velocidad del Mario		
 			when VEL_UPDATE =>
 				p_state <= WAITING;
-					if (sobreEsc = '1' and (up = '1' or down ='1')) then
-						-- Cuando estamos subiendo o bajando la escalera ponemos la velocidad del eje vertical a cero.
-						p_vely <= (others => '0');
-					else
-						if goingUp = '0' then
-						-- Cuando el Mario está cayendo	
-							if sobrePlatM = '0' then  -- No estamos sobre la plataforma
-								if (vely<MAX_VELY) then
-								-- Sino hemos llegado a la velocidad máxima, seguimos aumentando dicha velocidad.
-							        -- Con ello, conseguimos realizar el efecto gravitatorio en la caída del Mario
-									p_vely<=vely+ACEL;
-								else
-									p_vely<=vely;
-								end if;
-							else 
-							-- Si estamos en la plataforma, ponemos la velocidad del eje vertical a cero.
-								p_vely <= (others => '0');
-							end if;	
-						else
-							if vely > ACEL then
-							-- Vamos decrementando la velocidad hasta que se deja de cumplir la condición anterior	
-								p_vely <= vely - ACEL;
+				if (sobreEsc = '1' and (up = '1' or down ='1')) then
+					-- Cuando estamos subiendo o bajando la escalera ponemos la velocidad del eje vertical a cero.
+					p_vely <= (others => '0');
+				else
+					if goingUp = '0' then
+					-- Cuando el Mario está cayendo	
+						if sobrePlatM = '0' then  -- No estamos sobre la plataforma
+							if (vely<MAX_VELY) then
+							-- Sino hemos llegado a la velocidad máxima, seguimos aumentando dicha velocidad.
+						        -- Con ello, conseguimos realizar el efecto gravitatorio en la caída del Mario
+								p_vely<=vely+ACEL;
 							else
-								-- He terminado de subir, empiezo a caer
-								p_vely <= (others => '0');
-								p_goingUp <= '0';
+								p_vely<=vely;
 							end if;
+						else 
+						-- Si estamos en la plataforma, ponemos la velocidad del eje vertical a cero.
+							p_vely <= (others => '0');
+						end if;	
+					else
+						if vely > ACEL then
+						-- Vamos decrementando la velocidad hasta que se deja de cumplir la condición anterior	
+							p_vely <= vely - ACEL;
+						else
+							-- He terminado de subir, empiezo a caer
+							p_vely <= (others => '0');
+							p_goingUp <= '0';
 						end if;
 					end if;
+				end if;
 		end case;
 	end if;
 end process;
