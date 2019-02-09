@@ -54,10 +54,10 @@ signal sobrePlataforma_barril1, p_sobrePlataforma_barril1: std_logic;
 signal sobrePlataforma_barril2, p_sobrePlataforma_barril2: std_logic;
 signal sobrePlataforma_barril3, p_sobrePlataforma_barril3: std_logic;
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011"; 
-constant color_aviso_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100001"; 
-constant color_barril: STD_LOGIC_VECTOR(7 downto 0):= "10001000";
+constant color_aviso_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100001";
 constant color_mario: STD_LOGIC_VECTOR(7 downto 0):= "11100000";
-constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011000";
+constant color_barril: STD_LOGIC_VECTOR(7 downto 0):= "11100000";
+constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011011";
 
 
 begin
@@ -67,9 +67,8 @@ sobrePlatB2<=sobrePlataforma_barril2;
 sobrePlatB3<=sobrePlataforma_barril3;
 sobreEsc<= sobreEscalera;
 
-comb: process(RGBm, RGBb1, RGBb2, RGBb3, sobrePlataforma_barril1, sobrePlataforma_barril2, sobrePlataforma_barril3, RGBs,sobrePlataforma_mario, sobreEscalera)
+comb: process(RGBm, RGBb1, RGBb2, RGBb3, RGBe, sobrePlataforma_barril1, sobrePlataforma_barril2, sobrePlataforma_barril3, RGBs,sobrePlataforma_mario, sobreEscalera)
 begin
-	RGBin <= RGBs OR RGBm OR RGBb1 OR RGBb2 OR RGBb3 OR RGBe;
 	-- Control de Mario sobre plataforma
 	if (RGBm=color_aviso_mario and RGBs=color_plataforma)then
 		p_sobrePlataforma_mario<='1';
@@ -121,14 +120,29 @@ begin
 		p_sobreEscalera <= sobreEscalera;
 	end if;
 	
-	-- Para evitar solapamientos de colores/figuras
-	if (RGBm=color_mario and RGBe=color_escalera) then
-		RGBin<=color_mario;
-	elsif ((RGBb1=color_barril OR RGBb2=color_barril OR RGBb3=color_barril) and RGBe=color_escalera) then
-		RGBin <= color_barril;
-	elsif (RGBs=color_plataforma and RGBe=color_escalera) then
-		RGBin <= color_plataforma;
+	-- Determinamos el color que finalmente sale a la pantalla, priorizando algunas señales frente a otras
+	
+	if (RGBm /= "00000000") then
+		RGBin <= RGBm;
+	elsif ((RGBb1 /= "00000000") OR (RGBb2 /= "00000000") OR (RGBb3 /= "00000000")) then
+		RGBin <= RGBb1 OR RGBb2 OR RGBb3;
+	elsif (RGBs /= "00000000") then
+		RGBin <= RGBs;
+	elsif (RGBe /= "00000000") then
+		RGBin <= RGBe;
+	else
+		RGBin <= "00000000";
 	end if;
+-- Preferencias: Mario > Barriles > plataforma > Escaleras
+	
+--		RGBin <= RGBs OR RGBm OR RGBb1 OR RGBb2 OR RGBb3 OR RGBe;
+--	if ((RGBm /= "00000000" and RGBe=color_escalera) or (RGBm /= "00000000" and RGBs = color_plataforma)) then
+--		RGBin<=color_mario;
+--	elsif ((RGBb1=color_barril OR RGBb2=color_barril OR RGBb3=color_barril) and RGBe=color_escalera) then
+--		RGBin <= color_barril;
+--	elsif (RGBs=color_plataforma and RGBe=color_escalera) then
+--		RGBin <= color_plataforma;
+--	end if;
 	
 end process;
 

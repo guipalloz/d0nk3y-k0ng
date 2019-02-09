@@ -42,7 +42,7 @@ entity barril is
 end barril;
 
 architecture Behavioral of barril is
-signal p_posx, p_posy, posx, posy : unsigned(9 downto 0);
+signal p_posx, p_posy, posx, posy, ejex_aux, ejey_aux : unsigned(9 downto 0);
 constant VELX : unsigned(4 downto 0):= to_unsigned(5,5);
 constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 constant suelo : unsigned (9 downto 0) := to_unsigned(431,10);
@@ -52,9 +52,29 @@ signal p_sentido, sentido, restart,p_restart: STD_LOGIC; --Si 0, se mueve a la i
 type estado is (WAITING, FALLING, POS_UPDATE, VEL_UPDATE);
 signal state, p_state:estado;
 
+--Señales para la memoria
+signal s_addr : STD_LOGIC_VECTOR(8 downto 0);
+--signal reverse : STD_LOGIC_VECTOR(9 downto 0);
+signal s_data : STD_LOGIC_VECTOR(2 downto 0);
+
 constant MAX_VELY:unsigned(4 downto 0):=to_unsigned(25,5);
+COMPONENT barrilROM
+  PORT (
+    clka : IN STD_LOGIC;
+    addra : IN STD_LOGIC_VECTOR(8 DOWNTO 0);
+    douta : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+  );
+END COMPONENT;
+
 
 begin
+
+mibarril : barrilROM
+  PORT MAP (
+    clka => clk,
+    addra => s_addr,
+    douta => s_data
+  );
 
 sinc: process(clk,reset)
 begin
@@ -75,12 +95,33 @@ begin
 	end if;
 end process;
 
-comb: process(ejex,ejey, posx, posy,resets)
+comb: process(ejex,ejey, posx, posy, vely, ejey_aux, ejex_aux, s_data,resets, refresh)
 begin
+	--if (vely = to_unsigned(0,5)) then
+	 -- Sprite del barril 1 (rodando)
+	-- else
+	--	s_addr(10) <= '1'; -- Sprite del barril 2 (cayendo)
+	--end if;
+	if (vely > 2) then
+		s_addr(8) <= '1';
+		s_addr(7 downto 4) <= std_logic_vector(ejey_aux(3 downto 0));
+		s_addr(3 downto 0) <= std_logic_vector(ejex_aux(3 downto 0));
+	else
+		s_addr(8) <='0';
+		s_addr(7 downto 4) <= std_logic_vector(ejey_aux(3 downto 0));
+		s_addr(3 downto 0) <= std_logic_vector(ejex_aux(3 downto 0));
+	end if;
+	ejex_aux <= unsigned(ejex)-posx;
+	ejey_aux <= unsigned(ejey)-posy;
+	
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 16)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 16)) then
-		RGBb<="10001000"; --Pinta de marron
+		RGBb<= s_data(2) & s_data(2) & s_data(2) & s_data(1) & s_data(1) & s_data(1) & s_data(0) & s_data(0);
 	else
 		RGBb<="00000000"; --Pinta de negro
+	end if;
+	
+	if((unsigned(ejex) = posx +8) AND (unsigned(ejey) = (posy + 16))) then
+		RGBb<="10001000"; --Pintamos un único punto amarillo en el medio del cuadrado
 	end if;
 end process;
 

@@ -37,7 +37,7 @@ entity stage is
 end stage;
 architecture Behavioral of stage is
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011";
-constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011000";
+constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011011";
 begin
 
 repr: process(ejex,ejey)

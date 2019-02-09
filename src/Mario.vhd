@@ -47,11 +47,14 @@ entity Mario is
 end Mario;
 
 architecture Behavioral of Mario is
-signal p_posx, p_posy, posx, posy : unsigned(9 downto 0);
+signal p_posx, p_posy, posx, posy, ejex_aux,ejey_aux : unsigned(9 downto 0);
 
 signal vely,p_vely: unsigned(4 downto 0);
 signal p_goingUp, goingUp, jumping, p_jumping : STD_LOGIC;
 
+--Señales para la memoria
+signal s_addr: STD_LOGIC_VECTOR(10 downto 0);
+signal s_data : STD_LOGIC_VECTOR(2 downto 0);
 
 type estado is (WAITING, POS_UPDATE, VEL_UPDATE);
 signal state, p_state:estado;
@@ -61,9 +64,22 @@ constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 constant MAX_VELY:unsigned(4 downto 0):=to_unsigned(25,5);
 constant VELY_SALTO:unsigned(4 downto 0):=to_unsigned(10,5);
 
+COMPONENT marioROM
+  PORT (
+    clka : IN STD_LOGIC;
+    addra : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+    douta : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+  );
+END COMPONENT;
 
 begin
-
+memoriaMario : marioROM
+  PORT MAP (
+    clka => clk,
+    addra => s_addr,
+    douta => s_data
+  );
+  
 sinc: process(clk,reset,resets)
 begin
 	if(reset = '1') then
@@ -84,10 +100,39 @@ begin
 	end if;
 end process;
 
-comb: process(ejex,ejey, posx, posy)
-begin	
+comb: process(ejex,ejey, posx, posy, ejex_aux, ejey_aux, s_data, s_addr, up, down, left)
+begin
+	--reverse <= s_addr(9 downto 0);
+	if (up = '1' or down = '1') then
+		s_addr(10)<='1';
+		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
+		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
+	elsif (left = '1') then
+		s_addr(10)<='0';
+		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
+		s_addr(4 downto 0) <= std_logic_vector(32-ejex_aux(4 downto 0));
+	else
+		s_addr(10)<='0';
+		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
+		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
+	end if;
+	ejex_aux <= unsigned(ejex)-posx;
+	ejey_aux <= unsigned(ejey)-posy;
+--	if (up = '1' or down = '1') then
+--		s_addr(10)<='1';
+--		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
+--		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
+--	else
+--		s_addr(10) <= '0';
+--		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
+--		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
+--	end if;
+--	ejex_aux <= unsigned(ejex)-posx;
+--	ejey_aux <= unsigned(ejey)-posy;
+	
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 32)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 32)) then
-		RGBm<="11100000"; --Pinta de rojo
+		-- Estoy dentro del Mario
+		RGBm<= s_data(2) & s_data(2) & s_data(2) & s_data(1) & s_data(1) & s_data(1) & s_data(0) & s_data(0);
 	else
 		RGBm<="00000000"; --Pinta de negro
 	end if;
@@ -169,7 +214,6 @@ begin
 				
 			when VEL_UPDATE =>
 				p_state <= WAITING;
-				
 					if (sobreEsc = '1' and (up = '1' or down ='1')) then
 						p_vely <= (others => '0');
 					else
