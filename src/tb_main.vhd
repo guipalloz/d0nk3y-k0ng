@@ -1,39 +1,26 @@
---------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   18:36:01 12/06/2018
--- Design Name:   
--- Module Name:   D:/US/Master/1/Complementos de Electronica/DonkeyKong/tb_main.vhd
--- Project Name:  DonkeyKong
--- Target Device:  
--- Tool versions:  
--- Description:   
--- 
--- VHDL Test Bench Created by ISE for module: main
--- 
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends
--- that these types always be used for the top-level I/O of a design in order
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
+-------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 --
+--	Máster Universitario en Ingeniería de Telecomunicación 	 --
+--	Universidad de Sevilla, Curso 2018/2019			 --	
+--								 --	
+--	Autores:						 --
+--								 --
+--		- José Manuel Gata Romero  			 --
+--		- Ildefonso Jiménez Silva			 --
+--		- Guillermo Palomino Lozano			 --
+--								 --
+-------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 use ieee.std_logic_textio.all;
 use std.textio.all;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 USE ieee.numeric_std.ALL;
- 
+
+-- Test bench utilizado durante un momento en una PRIMERA VERSIÓN del trabajo para comprobar que 
+-- 	se pintaban distintos elementos tales como las plataformas o el cuadrado del Mario correctamente
+
+-- Se incluye por si el profesor considera oportuno echarle un vistazo.
+
 ENTITY tb_main IS
 END tb_main;
  
@@ -114,41 +101,39 @@ BEGIN
       wait;
    end process;
 	
-	VGA: process (clk)
-    file file_pointer: text is out "AAwrite.txt";
-    variable line_el: line;
+   VGA: process (clk)
+    	file file_pointer: text is out "AAwrite.txt";
+    	variable line_el: line;
 	begin
 
-    if rising_edge(clk) then
+   	if rising_edge(clk) then
 
-        -- Write the time
-        write(line_el, now); -- write the line.
-        write(line_el, ":"); -- write the line.
+		-- Write the time
+		write(line_el, now); -- write the line.
+		write(line_el, ":"); -- write the line.
 
-        -- Write the hsync
-        write(line_el, " ");
-        write(line_el, HS); -- write the line.
+		-- Write the hsync
+		write(line_el, " ");
+		write(line_el, HS); -- write the line.
 
-        -- Write the vsync
-        write(line_el, " ");
-        write(line_el, VS); -- write the line.
+		-- Write the vsync
+		write(line_el, " ");
+		write(line_el, VS); -- write the line.
 
-        -- Write the red
-        write(line_el, " ");
-        write(line_el, RGBout(7 downto 5)); -- write the line.
+		-- Write the red
+		write(line_el, " ");
+		write(line_el, RGBout(7 downto 5)); -- write the line.
 
-        -- Write the green
-        write(line_el, " ");
-        write(line_el, RGBout(4 downto 2)); -- write the line.
+		-- Write the green
+		write(line_el, " ");
+		write(line_el, RGBout(4 downto 2)); -- write the line.
 
-        -- Write the blue
-        write(line_el, " ");
-        write(line_el, RGBout(1 downto 0)); -- write the line.
+		-- Write the blue
+		write(line_el, " ");
+		write(line_el, RGBout(1 downto 0)); -- write the line.
 
-        writeline(file_pointer, line_el); -- write the contents into the file.
+		writeline(file_pointer, line_el); -- write the contents into the file.
 
-    end if;
-	end process;
-
-
+    	end if;
+    end process;
 END;
