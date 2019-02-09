@@ -109,18 +109,18 @@ component control is
            RGBin : out  STD_LOGIC_VECTOR(7 downto 0);
 	   sobrePlatM : out  STD_LOGIC;
 	   sobrePlatB1 : out  STD_LOGIC;
-			  sobrePlatB2 : out  STD_LOGIC;
-			  sobrePlatB3 : out  STD_LOGIC;
-			  sobreEsc : out STD_LOGIC;
-			  gameover : out STD_LOGIC);
+	   sobrePlatB2 : out  STD_LOGIC;
+	   sobrePlatB3 : out  STD_LOGIC;
+	   sobreEsc : out STD_LOGIC;
+	   gameover : out STD_LOGIC);
 end component;
 
 -- Elemento encargado de la generación de los barriles permitiendo que los barriles salgan con diferentes distancias entre sí.
 component contador_barriles is
     Port ( clk : in  STD_LOGIC;
-			  reset : in  STD_LOGIC;
-			  resets : in STD_LOGIC;
-			  aparece : out  STD_LOGIC_VECTOR (2 downto 0));
+	   reset : in  STD_LOGIC;
+	   resets : in STD_LOGIC;
+	    aparece : out  STD_LOGIC_VECTOR (2 downto 0));
 end component;
 	
 
@@ -128,89 +128,89 @@ begin
 -- Instanciación de cada uno de los componentes ya mencionados arriba.
 MiBarril1 : barril
 	Port MAP( clk => clk,
-				 reset => reset,
-				 ejex => s_ejex,
-				 ejey => s_ejey,
-				 sobrePlatB => s_sobrePlatB1,
-				 refresh => s_refresh,
-				 aparece => s_aparece(0),
-				 RGBb=> s_RGBb1,
-				 resets => s_resets);
+		  reset => reset,
+		  ejex => s_ejex,
+		  ejey => s_ejey,
+		  sobrePlatB => s_sobrePlatB1,
+		  refresh => s_refresh,
+		  aparece => s_aparece(0),
+		  RGBb=> s_RGBb1,
+		  resets => s_resets);
 
 MiBarril2 : barril
 	Port MAP( clk => clk,
-				 reset => reset,
-				 ejex => s_ejex,
-				 ejey => s_ejey,
-				 sobrePlatB => s_sobrePlatB2,
-				 refresh => s_refresh,
-				 aparece => s_aparece(1),
-				 RGBb=> s_RGBb2,
-				 resets => s_resets);
-				 
+		  reset => reset,
+		  ejex => s_ejex,
+		  ejey => s_ejey,
+		  sobrePlatB => s_sobrePlatB2,
+		  refresh => s_refresh,
+		  aparece => s_aparece(1),
+		  RGBb=> s_RGBb2,
+		  resets => s_resets);
+
 MiBarril3 : barril
 	Port MAP( clk => clk,
-				 reset => reset,
-				 ejex => s_ejex,
-				 ejey => s_ejey,
-				 sobrePlatB => s_sobrePlatB3,
-				 refresh => s_refresh,
-				 aparece => s_aparece(2),
-				 RGBb=> s_RGBb3,
-				 resets => s_resets);
+		  reset => reset,
+		  ejex => s_ejex,
+		  ejey => s_ejey,
+		  sobrePlatB => s_sobrePlatB3,
+		  refresh => s_refresh,
+		  aparece => s_aparece(2),
+		  RGBb=> s_RGBb3,
+		  resets => s_resets);
 				 
 MiMario: Mario
 	Port MAP( ejex => s_ejex,
-				 ejey => s_ejey,
-				 refresh => s_refresh,
-				 RGBm=> s_RGBm,
-				 reset => reset,
-				 clk => clk,
-				 left => left,
-				 right => right,
-				 up => up,
-				 down => down,
-				 jump => jump,
-				 sobrePlatM => s_sobrePlatM,
-				 resets => s_resets,
-				 sobreEsc => s_sobreEsc);
+		  ejey => s_ejey,
+		  refresh => s_refresh,
+		  RGBm=> s_RGBm,
+		  reset => reset,
+		  clk => clk,
+		  left => left,
+		  right => right,
+		  up => up,
+		  down => down,
+		  jump => jump,
+		  sobrePlatM => s_sobrePlatM,
+		  resets => s_resets,
+		  sobreEsc => s_sobreEsc);
 VGA: DriverVGA
     Port MAP( clk => clk,
-           reset => reset,
-			  RGBin => s_RGB,
-			  HS => HS,
-			  VS => VS,
-			  refresh => s_refresh,
-			  ejex => s_ejex,
-			  ejey=>	s_ejey,
-			  RGBout => RGBout);
+              reset => reset,
+	      RGBin => s_RGB,
+	      HS => HS,
+	      VS => VS,
+	      refresh => s_refresh,
+	      ejex => s_ejex,
+	      ejey=> s_ejey,
+	      RGBout => RGBout);
 MiStage: stage
 	Port MAP( ejex => s_ejex,
-				 ejey => s_ejey,
-				 RGBs => s_RGBs,
-				 RGBe => s_RGBe);
+		  ejey => s_ejey,
+		  RGBs => s_RGBs,
+		  RGBe => s_RGBe);
 MiControl: control
 	Port MAP(clk => clk,
-		reset => reset,
-		RGBm => s_RGBm,
-		RGBb1 => s_RGBb1,
-		RGBb2 => s_RGBb2,
-		RGBb3 => s_RGBb3,
-		RGBs => s_RGBs,
-		RGBe => s_RGBe,
-		RGBin => s_RGB,
-		sobrePlatM => s_sobrePlatM,
-		sobrePlatB1 => s_sobrePlatB1,
-		sobrePlatB2=> s_sobrePlatB2,
-		sobrePlatB3 => s_sobrePlatB3,
-		sobreEsc => s_sobreEsc,
-		gameover => s_resets);
+		 reset => reset,
+		 RGBm => s_RGBm,
+		 RGBb1 => s_RGBb1,
+		 RGBb2 => s_RGBb2,
+		 RGBb3 => s_RGBb3,
+		 RGBs => s_RGBs,
+		 RGBe => s_RGBe,
+		 RGBin => s_RGB,
+		 sobrePlatM => s_sobrePlatM,
+		 sobrePlatB1 => s_sobrePlatB1,
+		 sobrePlatB2=> s_sobrePlatB2,
+		 sobrePlatB3 => s_sobrePlatB3,
+		 sobreEsc => s_sobreEsc,
+		 gameover => s_resets);
 
 MiContador : contador_barriles
-	Port MAP ( clk => clk,
-				 reset => reset,
-				 resets => s_resets,
-				 aparece => s_aparece);
+	Port MAP (clk => clk,
+		  reset => reset,
+		  resets => s_resets,
+		  aparece => s_aparece);
 				 
 end Behavioral;
 
