@@ -30,14 +30,14 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity barril is
     Port ( clk : in STD_LOGIC;
-			  reset : in STD_LOGIC;
-			  ejex : in  STD_LOGIC_VECTOR(9 downto 0);
-           ejey : in  STD_LOGIC_VECTOR(9 downto 0);
-           sobrePlatB : in  STD_LOGIC;
-           aparece : in  STD_LOGIC;
-			  refresh : in STD_LOGIC;
-           RGBb : out  STD_LOGIC_VECTOR(7 downto 0);
-			  resets : in STD_LOGIC);
+	   reset : in STD_LOGIC;
+	   ejex : in  STD_LOGIC_VECTOR(9 downto 0);
+	   ejey : in  STD_LOGIC_VECTOR(9 downto 0);
+	   sobrePlatB : in  STD_LOGIC;
+	   aparece : in  STD_LOGIC;
+	   refresh : in STD_LOGIC;
+	   RGBb : out  STD_LOGIC_VECTOR(7 downto 0);
+	   resets : in STD_LOGIC);
 end barril;
 
 architecture Behavioral of barril is
