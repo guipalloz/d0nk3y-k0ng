@@ -1,70 +1,70 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    15:39:07 12/10/2018 
--- Design Name: 
--- Module Name:    stage - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electrónica	 --
+--	Máster Universitario en Ingeniería de Telecomunicación 	 --
+--	Universidad de Sevilla, Curso 2018/2019			 --	
+--								 --	
+--	Autores:						 --
+--								 --
+--		- José Manuel Gata Romero  			 --
+--		- Ildefonso Jiménez Silva			 --
+--		- Guillermo Palomino Lozano			 --
+--								 --
+-------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
+-- Descripción de la entidad: Declaración de puertos del bloque Stage
+-- ejex, ejey: Señales de entrada que indican la posición del píxel que se va a generar
+-- RGBs: Señal de salida correspondiente con el color de la plataforma
+-- RGBe: Señal de salida correspondiente con el color de la escalera
+-- Se necesitan dos señales distintas para diferenciar a la hora de activar sobrePlat y sobreEsc a la vez,
+---- es decir, distinguir cuando Mario está tanto en una plataforma como en una escalera
 entity stage is
     Port ( ejex : in  STD_LOGIC_VECTOR(9 downto 0);
            ejey : in  STD_LOGIC_VECTOR(9 downto 0);
            RGBs : out  STD_LOGIC_VECTOR(7 downto 0);
 			  RGBe : out  STD_LOGIC_VECTOR(7 downto 0));
 end stage;
+	
+-- Descripción de la arquitectura
 architecture Behavioral of stage is
+-- Definición de las constantes correspondientes con los colores de las plataformas y las escaleras
 constant color_plataforma: STD_LOGIC_VECTOR(7 downto 0):= "11000011";
 constant color_escalera: STD_LOGIC_VECTOR(7 downto 0):= "00011011";
 begin
 
+-- Proceso combinacional encargado de indicar el color que se mostrará para las señales de las plataformas y escaleras
 repr: process(ejex,ejey)
 	begin
--- Pintamos el suelo
-	RGBs<="00000000"; --Pinta suelo
-	if(unsigned(ejey) > to_unsigned(430,10)) then
-		RGBs<=color_plataforma; --Pinta suelo
 
-	--Condiciones para pintar cada plataforma
+	RGBs<="00000000"; -- Se pinta el color del fondo negro en ambas señales
+	RGBe<="00000000";
+	
+	-- Condiciones para pintar cada plataforma:
+	-- Los valores de la posición de las plataformas se ha elegido para que estén aproximadamente equiespaciadas en el eje vertical.
+	-- Respecto al eje x, se han definido de forma que el suelo ocupe todo el eje x, que la 1ª y 3ª plataforma empiecen desde la
+	---- izquierda y la 2ª por la derecha, con un espacio sin que llegue a ocupar todo el eje x
+	-- Respecto al eje y, el suelo se pinta a partir del píxel 430, por lo que tendrá 50 pixeles de grosor, mientras que las
+	---- plataformas tendrán un grosor de 25 píxeles
+	if(unsigned(ejey) > to_unsigned(430,10)) then
+		RGBs<=color_plataforma; -- Pinta la plataforma más inferior correspondiente al suelo
 	elsif(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) < to_unsigned(340,10) AND unsigned(ejex) < to_unsigned(480,10)) then
-		RGBs<=color_plataforma; --Pinta 1� plataforma
+		RGBs<=color_plataforma; --Pinta 1ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) < to_unsigned(225,10) AND unsigned(ejex) > to_unsigned(160,10)) then
-		RGBs<=color_plataforma; --Pinta 2� plataforma
+		RGBs<=color_plataforma; --Pinta 2ª plataforma
 	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) < to_unsigned(110,10) AND unsigned(ejex) < to_unsigned(480,10)) then
-		RGBs<=color_plataforma; --Pinta 3� plataforma
+		RGBs<=color_plataforma; --Pinta 3ª plataforma
 	end if;
 	
--- Pintamos la escalera, necesitamos diferenciar para poder activar sobrePlat y sobreEsc a la vez
 	--Condiciones para pintar cada escalera
-	RGBe<="00000000";
+	-- Se ha situado cada escalera en el borde de cada plataforma, con un grosor de 115 píxeles
 	if(unsigned(ejey) > to_unsigned(315,10) AND unsigned(ejey) <= to_unsigned(430,10) AND unsigned(ejex) < to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
-		RGBe<=color_escalera; --Pinta 1� escalera
+		RGBe<=color_escalera; --Pinta 1ª escalera
 	elsif(unsigned(ejey) > to_unsigned(200,10) AND unsigned(ejey) <= to_unsigned(315,10) AND unsigned(ejex) <= to_unsigned(208,10)  AND unsigned(ejex) > to_unsigned(160,10)) then
-		RGBe<=color_escalera; --Pinta 2� escalera
+		RGBe<=color_escalera; --Pinta 2ª escalera
 	elsif(unsigned(ejey) > to_unsigned(85,10) AND unsigned(ejey) <= to_unsigned(200,10) AND unsigned(ejex) < to_unsigned(480,10)  AND unsigned(ejex) >= to_unsigned(432,10)) then
-		RGBe<=color_escalera; --Pinta 3� escalera
+		RGBe<=color_escalera; --Pinta 3ª escalera
 	end if;
 	
 end process;
