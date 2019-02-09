@@ -106,6 +106,7 @@ begin
 	end if;
 end process;
 
+-- Proces combinacional encargado de pintar el barril accediendo a la memoria correspondiente
 comb: process(ejex,ejey, posx, posy, vely, ejey_aux, ejex_aux, s_data,resets, refresh)
 begin
 	-- Pintamos el barril, generado por memoria
@@ -137,7 +138,7 @@ begin
 	end if;
 end process;
 
-
+-- Máquina de Estados Finita asociada al comportamiento del barril
 maquina_estado: process(restart,refresh,posx, posy, vely, state, sentido, aparece, sobrePlatB, resets)
 begin
 	-- resets: Reset síncrono activo a nivel alto asociado a fin de juego
