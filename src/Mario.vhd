@@ -1,22 +1,16 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    11:30:52 12/05/2018 
--- Design Name: 
--- Module Name:    Mario - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------
+--	Trabajo Donkey Kong - Complementos de Electr贸nica	 --
+--	M谩ster Universitario en Ingenier铆a de Telecomunicaci贸n 	 --
+--	Universidad de Sevilla, Curso 2018/2019			 --	
+--								 --	
+--	Autores:						 --
+--								 --
+--		- Jos茅 Manuel Gata Romero  			 --
+--		- Ildefonso Jim茅nez Silva			 --
+--		- Guillermo Palomino Lozano			 --
+--								 --
+-------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -24,16 +18,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+-- Componente Mario encargado tanto del movimiento como de la representaci贸n del Mario. 
+-- Recibe como entrada cada uno de los botones disponibles en el juego, las coordenadas vertical
+-- y horizontal del p铆xel. Devuelve a su salida una se帽al de 8 bits que indica los colores
+-- correspondientes de Mario que toca pintar
+
+-- Descripci贸n de la entidad: Declaraci贸n de puertos del Mario
+-- refresh: se帽al de control que se activa cuando llegamos al final de la pantalla
+-- sobrePlatM: se帽al de control que se activa cuando el Mario est谩 sobre una plataforma
+-- sobreEsc: se帽al de control que se activa cuando el Mario est谩 sobre una escalera
+-- resets: se帽al de control
 
 entity Mario is
     Port ( ejex : in  STD_LOGIC_VECTOR(9 downto 0);
            ejey : in  STD_LOGIC_VECTOR(9 downto 0);
            refresh : in  STD_LOGIC;
-           RGBm : out  STD_LOGIC_VECTOR(7 downto 0);
            reset : in  STD_LOGIC;
            clk : in  STD_LOGIC;
            left : in STD_LOGIC;
@@ -44,26 +43,33 @@ entity Mario is
 			  sobrePlatM: in STD_LOGIC;
 			  resets : in STD_LOGIC;
 			  sobreEsc : in STD_LOGIC);
+	RGBm : out  STD_LOGIC_VECTOR(7 downto 0);
 end Mario;
 
+-- Descripci贸n de la arquitectura
 architecture Behavioral of Mario is
+-- Declaraci贸n de se帽ales
 signal p_posx, p_posy, posx, posy, ejex_aux,ejey_aux : unsigned(9 downto 0);
 
 signal vely,p_vely: unsigned(4 downto 0);
 signal p_goingUp, goingUp, jumping, p_jumping : STD_LOGIC;
 
---Se馻les para la memoria
+--Se帽ales para controlar la memoria
 signal s_addr: STD_LOGIC_VECTOR(10 downto 0);
 signal s_data : STD_LOGIC_VECTOR(2 downto 0);
 
+-- Tipo de dato empleado para la m谩quina de estados
 type estado is (WAITING, POS_UPDATE, VEL_UPDATE);
+
 signal state, p_state:estado;
 
+-- Declaraci贸n de diferentes constantes
 constant VELX : unsigned(4 downto 0):= to_unsigned(3,5);
 constant ACEL : unsigned(4 downto 0):= to_unsigned(1,5);
 constant MAX_VELY:unsigned(4 downto 0):=to_unsigned(25,5);
 constant VELY_SALTO:unsigned(4 downto 0):=to_unsigned(10,5);
 
+-- Declaraci贸n de la memoria generada por el Core Generator
 COMPONENT marioROM
   PORT (
     clka : IN STD_LOGIC;
@@ -73,6 +79,7 @@ COMPONENT marioROM
 END COMPONENT;
 
 begin
+-- Instanciaci贸n de la memoria
 memoriaMario : marioROM
   PORT MAP (
     clka => clk,
@@ -80,6 +87,7 @@ memoriaMario : marioROM
     douta => s_data
   );
   
+-- Proceso s铆ncrono	
 sinc: process(clk,reset,resets)
 begin
 	if(reset = '1') then
@@ -100,52 +108,47 @@ begin
 	end if;
 end process;
 
+-- Proceso combinacional encargado de la representaci贸n del Mario
 comb: process(ejex,ejey, posx, posy, ejex_aux, ejey_aux, s_data, s_addr, up, down, left)
 begin
-	--reverse <= s_addr(9 downto 0);
 	if (up = '1' or down = '1') then
+	-- Mostramos la segunda imagen almacenada en la memoria correspondiente al Mario para cuando est谩 subiendo o bajando la escalera
 		s_addr(10)<='1';
 		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
 		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
 	elsif (left = '1') then
+	-- Mostramos la primera imagen almacenada en la memoria correspondiente al Mario haci茅ndole la simetr铆a cuando nos movemos a la izquierda
 		s_addr(10)<='0';
 		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
 		s_addr(4 downto 0) <= std_logic_vector(32-ejex_aux(4 downto 0));
 	else
+	-- Mostramos la primera imagen almacenada en la memoria correspondiente al Mario cuando nos movemos a la derecha o nos quedamos parados en una plataforma o escalera	
 		s_addr(10)<='0';
 		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
 		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
 	end if;
+	-- Se帽ales adicionales para poder asociar una direcci贸n de la memoria a una posici贸n en la pantalla
 	ejex_aux <= unsigned(ejex)-posx;
 	ejey_aux <= unsigned(ejey)-posy;
---	if (up = '1' or down = '1') then
---		s_addr(10)<='1';
---		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
---		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
---	else
---		s_addr(10) <= '0';
---		s_addr(9 downto 5) <= std_logic_vector(ejey_aux(4 downto 0));
---		s_addr(4 downto 0) <= std_logic_vector(ejex_aux(4 downto 0));
---	end if;
---	ejex_aux <= unsigned(ejex)-posx;
---	ejey_aux <= unsigned(ejey)-posy;
 	
 	if((unsigned(ejex) >= posx) AND (unsigned(ejex) < (posx + 32)) AND (unsigned(ejey) >= posy) AND (unsigned(ejey) < posy + 32)) then
-		-- Estoy dentro del Mario
+		-- Pintamos el Mario
 		RGBm<= s_data(2) & s_data(2) & s_data(2) & s_data(1) & s_data(1) & s_data(1) & s_data(0) & s_data(0);
 	else
-		RGBm<="00000000"; --Pinta de negro
+		RGBm<="00000000";
 	end if;
 	
+	-- Pintamos un 煤nico punto amarillo en el medio del borde inferior del Mario
 	if((unsigned(ejex) = posx +16) AND (unsigned(ejey) = (posy + 31))) then
-		RGBm<="11100001"; --Pintamos un 鷑ico punto amarillo en el medio del cuadrado
+		RGBm<="11100001";
 	end if;
 	
 end process;
 
-
+-- M谩quina de estados donde gestionamos todo lo correspondiente al movimiento del Mario		
 maquina_estado: process(refresh,posx, posy, vely, state, left, right, sobrePlatM, jump, jumping, goingUp, resets, sobreEsc, up, down)
 begin
+	-- Realizamos un reset s铆ncrono cuando el Mario muere o llega al final de la partida
 	if (resets = '1') then
 		p_posx <= to_unsigned(50,10);
 		p_posy <= to_unsigned(395,10);
@@ -160,7 +163,9 @@ begin
 		p_vely<= vely;
 		p_jumping<=jumping;
 		p_goingUp <= goingUp;
+
 		case state is
+			-- WAITING: estado en el que el Mario permanece a la espera hasta que se activa la se帽al refresh
 			when WAITING =>
 				if (refresh ='1') then
 					p_state<=POS_UPDATE;
@@ -173,62 +178,73 @@ begin
 					p_goingUp <= '1';
 					p_vely <= VELY_SALTO;
 					p_jumping <= '1';
-				end if;
+				end if;				
 				
-				
+			-- POS_UPDATE: estado en el que se actualiza la posici贸n del Mario			
 			when POS_UPDATE =>
 				p_state<=VEL_UPDATE;
 				
-				-- Control de posici髇 horizontal
-				if (left='1' and posx>VELX) then -- Restricci髇 de no salirme de la pantalla
+				-- Control de posici贸n horizontal
+				if (left='1' and posx>VELX) then -- Restricci贸n para no salirme de la pantalla cuando nos movemos a la izquierda
 					p_posx<=posx-VELX;
-				elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricci髇 en el otro lado de la pantalla
+				elsif (right='1' and posx + 32 < to_unsigned(639,10)) then -- Misma restricci贸n en el otro lado de la pantalla
 					p_posx<=posx+VELX;
 				else
 					p_posx<=posx;
 				end if;
 				
-				-- Control de posici髇 vertical
+				-- Control de posici贸n vertical
 				if(sobreEsc='1' and jumping = '0') then
+					-- Gesti贸n del movimiento del Mario en la escalera
 					if (up ='1') then
-						p_posy <= posy-1; -- Sube con velocidad 1
+						p_posy <= posy-1;
 					elsif(down='1') then
 						p_posy <= posy+1;
 					else
 						p_posy <= posy;
 					end if;
 				elsif(goingUp='0')then
+					-- Controlamos el Mario cuando est谩 cayendo
 					if(sobrePlatM ='0') then
+					-- Sino estamos en la plataforma, seguimos cayendo	
 						p_posy <= posy + vely;
 					else
-						p_posy <= posy-1; -- Me salgo de la plataforma
+					-- Si estamos en la plataforma, nos vamos saliendo de la misma de un p铆xel en un p铆xel 
+						p_posy <= posy-1;
 						p_jumping<='0';
 					end if;
 				else
 					if(posy>vely)then 
-						p_posy<=posy-vely; -- Si no me salgo de la pantalla, actualizo gravedad
+						p_posy<=posy-vely; -- Si no me salgo de la pantalla, actualizamos la posici贸n con normalidad
 					else
-						p_posy<=posy; -- Si me salgo de la pantalla, hay tope
+						p_posy<=posy; -- Si me salgo de la pantalla, establecemos un l铆mite
 					end if;
 				end if;
 				
+			-- VEL_UPDATE: estado en el que se actualiza la velocidad del Mario		
 			when VEL_UPDATE =>
 				p_state <= WAITING;
 					if (sobreEsc = '1' and (up = '1' or down ='1')) then
+						-- Cuando estamos subiendo o bajando la escalera ponemos la velocidad del eje vertical a cero.
 						p_vely <= (others => '0');
 					else
 						if goingUp = '0' then
-							if sobrePlatM = '0' then
+						-- Cuando el Mario est谩 cayendo	
+							if sobrePlatM = '0' then  -- No estamos sobre la plataforma
 								if (vely<MAX_VELY) then
+								-- Sino hemos llegado a la velocidad m谩xima, seguimos aumentando dicha velocidad.
+							        -- Con ello, conseguimos realizar el efecto gravitatorio en la ca铆da del Mario
 									p_vely<=vely+ACEL;
 								else
 									p_vely<=vely;
 								end if;
 							else 
+							-- Si estamos en la plataforma, ponemos la velocidad del eje vertical a cero.
 								p_vely <= (others => '0');
 							end if;	
 						else
-							if vely > ACEL then -- 
+							if vely > ACEL then
+							-- Vamos decrementando la velocidad hasta que se deja de cumplir la condici贸n anterior	
 								p_vely <= vely - ACEL;
 							else
 								-- He terminado de subir, empiezo a caer
